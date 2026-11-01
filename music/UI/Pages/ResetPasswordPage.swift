@@ -121,7 +121,7 @@ struct ResetPasswordPage: View {
             Text(alertMessage)
         }
         .fullScreenCover(isPresented: $navigateToHomePage) {
-            HomePage()
+            MusicIndexPage()
         }
     }
     
@@ -227,7 +227,7 @@ struct ResetPasswordPage: View {
                     // 保存用户信息和token
                     self.appState.updateUserData(loginResponse.userData)
                     self.appState.updateToken(loginResponse.token)
-                    // 跳转到 HomePage
+                    // 跳转到 MusicIndexPage
                     self.navigateToHomePage = true
                     
                 case .failure(let error):

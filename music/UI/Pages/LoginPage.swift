@@ -237,7 +237,7 @@ struct LoginPage: View {
             ForgetPasswordPage()
         }
         .fullScreenCover(isPresented: $navigateToHomePage) {
-            HomePage()
+            MusicIndexPage()
         }
         .onDisappear {
             timer?.invalidate()
@@ -348,7 +348,7 @@ struct LoginPage: View {
                     appState.updateUserData(loginResponse.userData)
                     appState.updateToken(loginResponse.token)
                     
-                    // 跳转到 HomePage
+                    // 跳转到 MusicIndexPage
                     navigateToHomePage = true
                     
                 case .failure(let error):

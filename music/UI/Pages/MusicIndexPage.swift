@@ -1,5 +1,5 @@
 //
-//  HomePage.swift
+//  MusicIndexPage.swift
 //  music
 //
 //  Created by 吴文强 on 2026/11/01.
@@ -14,7 +14,7 @@ import SwiftUI
 /// - 底部中央：迷你播放器（唱片），点按进入播放页
 /// - Tab 页懒加载：只有被点击过的 Tab 才创建视图（对齐 uniapp 的 `isInitComponent`）
 /// - 切换 Tab 不销毁已创建的页面，回来时保留状态（对齐 uniapp 的 `v-show` 与 flutter 的 keepAlive）
-struct HomePage: View {
+struct MusicIndexPage: View {
     @ObservedObject private var playerState = PlayerState.shared
 
     /// 当前选中的 Tab 下标：0 首页 / 1 推荐 / 2 音乐圈 / 3 我的
@@ -110,5 +110,5 @@ private extension View {
 }
 
 #Preview {
-    HomePage()
+    MusicIndexPage()
 }

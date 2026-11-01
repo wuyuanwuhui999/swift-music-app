@@ -55,7 +55,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── ForgetPasswordPage.swift       # 忘记密码
 │   │   ├── ResetPasswordPage.swift        # 重置密码
 │   │   ├── UserInfoPage.swift             # 用户信息
-│   │   ├── HomePage.swift                 # 主页：四 Tab 容器 + 底部迷你播放器
+│   │   ├── MusicIndexPage.swift           # 主页：四 Tab 容器 + 底部迷你播放器
 │   │   ├── MusicHomePage.swift            # 首页 Tab（占位）
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab（占位）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
@@ -81,7 +81,7 @@ swift-music-app/music/                     # Git 仓库根
 
 - **目录**：页面 → `UI/Pages/`；组件 → `UI/Components/`；模型 → `Models/`；接口路径与常量 → `Config/Constants.swift`；主题 → `Theme/`。
 - **间距**：一律 `Dimens.middleMargin`（15）。
-- **卡片**：除 HomePage 外所有页面模块都用卡片 —— 圆角 `Dimens.borderRadius`、背景 `Colors.whiteColor`、内边距 `Dimens.middleMargin`。
+- **卡片**：除 MusicIndexPage 外所有页面模块都用卡片 —— 圆角 `Dimens.borderRadius`、背景 `Colors.whiteColor`、内边距 `Dimens.middleMargin`。
 - **按钮**：高 `Dimens.btnHeight`，圆角 `Dimens.btnHeight / 2`；确定 = `Colors.primaryColor` 底 + 白字；取消 = 透明底 + `Colors.grayColor` 边框与文字；禁用 = `Colors.grayColor` 底；删除 = `Colors.warnColor` 底。
 - **输入框**：高 `Dimens.inputHeight`，圆角 `Dimens.inputHeight / 2`。
 - **字体**：正文 `Dimens.normalFont`(17)、主标题 `Dimens.middleFont`(20)、大标题 `Dimens.bigFont`(30)。
@@ -111,12 +111,12 @@ swift-music-app/music/                     # Git 仓库根
 
 ```
 WelcomePage（校验 token）
-  ├─ 有效 → HomePage
-  └─ 无效 → LoginPage ─┬→ 登录成功 → HomePage
-                       ├→ RegisterPage ─── 注册成功 → HomePage
-                       └→ ForgetPasswordPage → ResetPasswordPage ─── 重置成功 → HomePage
+  ├─ 有效 → MusicIndexPage
+  └─ 无效 → LoginPage ─┬→ 登录成功 → MusicIndexPage
+                       ├→ RegisterPage ─── 注册成功 → MusicIndexPage
+                       └→ ForgetPasswordPage → ResetPasswordPage ─── 重置成功 → MusicIndexPage
 
-HomePage（四 Tab 容器，对齐 uniapp MusicIndexPage / flutter MusicIndexPage）
+MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter MusicIndexPage.dart）
   ├─ 首页   → MusicHomePage（占位）
   ├─ 推荐   → MusicRecommentPage（占位）
   ├─ 音乐圈 → MusicCirclePage（占位）
@@ -124,7 +124,7 @@ HomePage（四 Tab 容器，对齐 uniapp MusicIndexPage / flutter MusicIndexPag
   └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage（占位）
 ```
 
-### 首页（HomePage）实现要点
+### 主页容器（MusicIndexPage）实现要点
 
 | 能力 | 说明 |
 |------|------|
@@ -153,8 +153,8 @@ xcodebuild -project music.xcodeproj -scheme music \
 
 | 阶段 | 内容 | 状态 |
 |------|------|------|
-| 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ HomePage 占位 | ✅ 已完成 |
-| 二 | HomePage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
+| 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ MusicIndexPage 占位 | ✅ 已完成 |
+| 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
 | 三 | 首页 Tab 内容（轮播、分类入口、热门榜单，接入 music 模块接口） | ⏳ 待开发 |
 | 四 | 推荐 / 音乐圈 / 我的 三个 Tab 的正式内容 | ⏳ 待开发 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、评论点赞收藏） | ⏳ 待开发 |

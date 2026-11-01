@@ -40,7 +40,7 @@ struct WelcomePage: View {
             LoginPage()
         }
         .fullScreenCover(isPresented: $navigateToHomePage) {
-            HomePage()
+            MusicIndexPage()
         }
     }
     
@@ -56,7 +56,7 @@ struct WelcomePage: View {
                         // 保存用户信息到全局
                         AppState.shared.updateUserData(userData)
                         AppState.shared.isLoggedIn = true
-                        // 跳转到 HomePage
+                        // 跳转到 MusicIndexPage
                         self.navigateToHomePage = true
                     case .failure(let error):
                         print("获取用户信息失败: \(error.localizedDescription)")
