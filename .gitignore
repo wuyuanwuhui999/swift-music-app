@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+project.xcworkspace/xcuserdata/
+.swiftpm/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# 依赖 / 包管理
+Pods/
+Carthage/Build/
+Package.resolved
+
+# 本地环境
+.env
+*.local

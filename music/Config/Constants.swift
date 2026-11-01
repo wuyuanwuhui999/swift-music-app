@@ -1,0 +1,69 @@
+import Foundation
+// 在 Constants 结构体中添加新的 API 路径
+struct Constants {
+    // API基础域名
+    static let baseURL = "http://127.0.0.1:4000"
+    
+    // WebSocket 地址
+    static let webSocketURL = "ws://127.0.0.1:4000/service/chat/ws/chat"
+        
+    // 其他常量配置
+    struct Timeout {
+        static let request: TimeInterval = 30
+        static let resource: TimeInterval = 60
+    }
+    
+    struct Cache {
+        static let maxAge: TimeInterval = 3600 * 24 * 30 // 1个月
+    }
+    
+    // API路径
+    struct API {
+        static let login = "/service/user/login"
+        static let register = "/service/user/register"
+        static let getUserData = "/service/user/getUserData"
+        static let logout = "/service/user/logout"
+        static let sendEmailVertifyCode = "/service/user/sendEmailVertifyCode"
+        static let loginByEmail = "/service/user/loginByEmail"
+        static let getTenantList = "/service/tenant/getTenantList"
+        static let getDirectoryList = "/service/chat/getDirectoryList"
+        static let getDocListByDirId = "/service/chat/getDocListByDirId"
+        static let getPublicDocList = "/service/chat/getPublicDocList"
+        static let createDir = "/service/chat/createDir"
+        static let getChatHistory = "/service/chat/getChatHistory"
+        static let getChatHistoryByChatId = "/service/chat/getChatHistoryByChatId"
+        static let uploadDoc = "/service/chat/uploadDoc"
+        static let deleteDoc = "/service/chat/deleteDoc/{docId}"
+        static let updateDocPermission = "/service/chat/updateDocPermission"
+        static let updateUser = "/service/user/updateUser"
+        static let updateAvater = "/service/user/updateAvater"
+        static let vertifyUser = "/service/user/vertifyUser"
+        static let resetPassword = "/service/user/resetPassword"
+        static let updatePassword = "/service/user/updatePassword"
+        static let getPrompt = "/service/prompt/getPrompt"
+        static let updatePrompt = "/service/prompt/updatePrompt"
+        static let getCompanyList = "/service/company/getCompanyList"
+        static let getTenantUserList = "/service/tenant/getTenantUserList"
+        static let addTenantUser = "/service/tenant/addTenantUser/{tenantId}/{userId}"
+
+        static let addAdmin = "/service/tenant/addAdmin/{tenantId}/{userId}"
+        static let cancelAdmin = "/service/tenant/cancelAdmin/{tenantId}/{userId}"
+        static let searchCompanyUsers = "/service/company/searchUsers"
+
+        static let getCompanyUsers = "/service/company/getCompanyUsers"
+        static let addCompanyUser = "/service/company/addUser"
+
+        static let getDepartments = "/service/company/getDepartments"
+        static let getPositions = "/service/company/getPositions"
+        static let searchTenantUsers = "/service/tenant/searchTenantUsers"
+
+        static let getPromptList = "/service/prompt/getPromptList"
+        static let deletePrompt = "/service/prompt/deletePrompt/{promptId}"
+        static let insertPrompt = "/service/prompt/insertPrompt"
+        
+        static let getModelList = "/service/chat/getModelList"
+        static let addModel = "/service/chat/addModel"
+        static let deleteModel = "/service/chat/deleteModel/{modelId}"
+        static let updateModel = "/service/chat/updateModel"
+    }
+}
