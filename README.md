@@ -66,7 +66,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── UserInfoPage.swift             # 用户信息
 │   │   ├── MusicIndexPage.swift           # 主页：四 Tab 容器 + 底部迷你播放器
 │   │   ├── MusicHomePage.swift            # 首页 Tab：搜索栏 + 分类入口 + 榜单/歌手模块
-│   │   ├── MusicRecommentPage.swift       # 推荐 Tab（占位）
+│   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（分页 + 下拉刷新）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
 │   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
 │   │   └── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
@@ -81,6 +81,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicModuleCard.swift          # 歌曲模块卡片（3 首 + 点赞）
 │   │   ├── MusicSingerCard.swift          # 推荐歌手模块卡片
 │   │   ├── MusicSongRow.swift             # 歌曲行
+│   │   ├── MusicRankRow.swift             # 带名次的歌曲行（推荐页）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -138,11 +139,24 @@ WelcomePage（校验 token）
 
 MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter MusicIndexPage.dart）
   ├─ 首页   → MusicHomePage（搜索栏 + 分类入口 + 榜单/歌手模块）
-  ├─ 推荐   → MusicRecommentPage（占位）
+  ├─ 推荐   → MusicRecommentPage（带名次的推荐歌曲列表）
   ├─ 音乐圈 → MusicCirclePage（占位）
   ├─ 我的   → MusicUserPage（占位）
-  └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage（占位）
+  └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage
 ```
+
+### 推荐页（MusicRecommentPage）实现要点
+
+对齐 flutter `MusicRecommentPage.dart` / uniapp `MusicRecommentComponent.vue`：
+
+| 能力 | 说明 |
+|------|------|
+| 列表 | 每行一张卡片：名次（前三名奖牌图标 `icon_no1~3`，其余数字）+ 封面 + 歌名/歌手 + 播放状态 + 喜欢 + 更多 |
+| 数据源 | 先 `getMusicCategory` 取第一个分类，再 `getMusicListByCategoryId` 拉歌曲（修正了 uniapp 写死 categoryId=1 导致空白的问题） |
+| 分页 | 每页 20 条，滚动到底（距底 200pt）加载下一页，到底显示「已经到底了」 |
+| 下拉刷新 | 原生 `.refreshable`，回到第一页重新拉取 |
+| 播放 | 点歌立即播放；若当前播放列表不是「推荐歌曲」，拉整列表（500 条）作为播放列表后进播放页 |
+| 点赞 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
 
 ### 首页（MusicHomePage）实现要点
 
@@ -228,7 +242,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ MusicIndexPage 占位 | ✅ 已完成 |
 | 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
-| 四 | 推荐 / 音乐圈 / 我的 三个 Tab 的正式内容 | ⏳ 待开发 |
+| 四 | 推荐 Tab（带名次的推荐列表、分页、下拉刷新、点赞、点歌进播放页）；音乐圈 / 我的 Tab 正式内容 | 🚧 部分完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
 | 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、歌词页、评论/收藏夹/分享等） | ⏳ 待开发 |
 

@@ -37,6 +37,8 @@ struct Constants {
         static let homeModuleInitialCount = 3
         /// 「推荐歌手」模块展示的歌手数
         static let homeSingerCount = 4
+        /// 推荐页播放列表所属模块名（对齐 uniapp 推荐页的 "推荐歌曲"）
+        static let recommendClassifyName = "推荐歌曲"
     }
     
     // API路径
