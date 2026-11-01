@@ -24,6 +24,20 @@ struct Constants {
         static let loopMode = "LOOP_STORAGE_KEY"          // 循环播放模式
         static let circleUpdateTime = "CIRCLE_UPDATE_TIME" // 音乐圈上次查看时间
     }
+
+    /// 音乐模块通用配置（对齐 uniapp `common/constant.ts`）
+    struct MusicConfig {
+        /// 通用分页数量（uniapp PAGE_SIZE）
+        static let pageSize = 20
+        /// 播放列表一次拉取的最大条数（uniapp MAX_FAVORITE_NUMBER）
+        static let maxPlaylistCount = 500
+        /// 首页每个模块展示的歌曲数
+        static let homeModuleSongCount = 3
+        /// 首页初始加载的模块数（滚动到底再加 1）
+        static let homeModuleInitialCount = 3
+        /// 「推荐歌手」模块展示的歌手数
+        static let homeSingerCount = 4
+    }
     
     // API路径
     struct API {
@@ -73,5 +87,13 @@ struct Constants {
         static let addModel = "/service/chat/addModel"
         static let deleteModel = "/service/chat/deleteModel/{modelId}"
         static let updateModel = "/service/chat/updateModel"
+
+        // MARK: - 音乐模块（music-service）
+        static let getKeywordMusic = "/service/music/getKeywordMusic"
+        static let getMusicCategory = "/service/music/getMusicCategory"
+        static let getMusicListByCategoryId = "/service/music/getMusicListByCategoryId"
+        static let getMusicAuthorListByCategoryId = "/service/music/getMusicAuthorListByCategoryId"
+        static let insertMusicLike = "/service/music/insertMusicLike/{musicId}"
+        static let deleteMusicLike = "/service/music/deleteMusicLike/{musicId}"
     }
 }

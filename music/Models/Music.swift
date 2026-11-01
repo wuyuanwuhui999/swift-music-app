@@ -102,21 +102,3 @@ struct Music: Codable, Identifiable, Equatable {
         self.isLike = isLike
     }
 }
-
-// MARK: - 数值 / 字符串兼容解码
-private extension KeyedDecodingContainer {
-    /// 兼容 Int / String / Double 三种返回形式
-    func flexibleInt(_ key: Key) -> Int? {
-        if let value = try? decodeIfPresent(Int.self, forKey: key) { return value }
-        if let value = try? decodeIfPresent(Double.self, forKey: key) { return Int(value) }
-        if let value = try? decodeIfPresent(String.self, forKey: key) { return Int(value) }
-        return nil
-    }
-
-    /// 兼容 String / Int 两种返回形式
-    func flexibleString(_ key: Key) -> String? {
-        if let value = try? decodeIfPresent(String.self, forKey: key) { return value }
-        if let value = try? decodeIfPresent(Int.self, forKey: key) { return String(value) }
-        return nil
-    }
-}

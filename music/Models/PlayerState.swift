@@ -40,6 +40,8 @@ final class PlayerState: ObservableObject {
     @Published private(set) var isPlaying: Bool = false
     /// 循环模式
     @Published private(set) var loopMode: LoopMode = .order
+    /// 当前播放列表所属模块名（对齐 uniapp `store.classifyName`）
+    @Published private(set) var classifyName: String = ""
 
     private let defaults = UserDefaults.standard
 
@@ -72,6 +74,12 @@ final class PlayerState: ObservableObject {
     /// 更新播放状态（播放器接入后由播放引擎回调）
     func setPlaying(_ playing: Bool) {
         isPlaying = playing
+    }
+
+    /// 更新当前播放列表所属模块名
+    /// 对齐 uniapp `store.classifyName`：列表行据此判断「本模块是否有歌正在播放」
+    func setClassifyName(_ name: String) {
+        classifyName = name
     }
 
     // MARK: - 本地缓存

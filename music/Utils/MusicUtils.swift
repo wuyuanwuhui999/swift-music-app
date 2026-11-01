@@ -15,9 +15,24 @@ enum MusicUtils {
     static func coverURL(_ cover: String?) -> String? {
         guard let cover = cover, !cover.isEmpty else { return nil }
         if cover.hasPrefix("http://") || cover.hasPrefix("https://") {
-            return cover.replacingOccurrences(of: "{size}", with: "480")
+            let resolved = cover.replacingOccurrences(of: "{size}", with: "480")
+            return upgradeToHTTPS(resolved)
         }
         return Constants.baseURL + cover
+    }
+
+    /// 外链图片统一升级成 https
+    ///
+    /// iOS 的 ATS 默认禁止 http 明文请求（本地 127.0.0.1 / localhost 例外），
+    /// 而后端返回的第三方封面、歌手头像经常是 `http://`（如 singerimg.kugou.com），
+    /// 不升级会加载失败、只能落到默认图。
+    private static func upgradeToHTTPS(_ url: String) -> String {
+        guard url.hasPrefix("http://") else { return url }
+        // 本地后端保持 http，避免 https 握手失败
+        if url.hasPrefix("http://127.0.0.1") || url.hasPrefix("http://localhost") {
+            return url
+        }
+        return "https://" + url.dropFirst("http://".count)
     }
 
     /// 时长（秒）格式化成 mm:ss

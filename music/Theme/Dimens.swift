@@ -35,6 +35,20 @@ struct Dimens {
     static let miniPlayerBorder: CGFloat = 3
     /// 音乐圈未读红点直径
     static let redCircle: CGFloat = 8
+
+    // MARK: - 首页（MusicHomePage）专用尺寸（对齐 uniapp 的 rpx 值）
+    /// 歌曲列表行封面直径（uniapp @middle-avater 80rpx）
+    static let musicCover: CGFloat = 40
+    /// 推荐歌手头像直径（uniapp @big-avater 120rpx）
+    static let musicSingerAvatar: CGFloat = 60
+    /// 列表行操作小图标（uniapp @sm-icon-size 40rpx）
+    static let musicRowIcon: CGFloat = 20
+    /// 分类入口大图标（uniapp @lg-icon-size * 1.5 = 105rpx）
+    static let musicCategoryIcon: CGFloat = 52
+    /// 模块标题前的展开/折叠箭头（uniapp @sm-icon-size 40rpx）
+    static let musicArrowIcon: CGFloat = 20
+    /// 首页搜索框高度（uniapp @middle-avater 80rpx）
+    static let musicSearchHeight: CGFloat = 40
 }
 
 // 扩展CGFloat以便更方便使用

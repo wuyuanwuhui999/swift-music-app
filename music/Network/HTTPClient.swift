@@ -1643,3 +1643,140 @@ struct LoginResponse {
     let userData: User
     let token: String
 }
+
+// MARK: - 音乐模块接口（music-service）
+extension HTTPClient {
+
+    /// 获取搜索框的推荐关键词歌曲
+    /// 接口：GET /service/music/getKeywordMusic（data 为单曲对象）
+    /// - Parameter completion: 成功返回推荐歌曲，失败返回错误
+    func getKeywordMusic(completion: @escaping (Result<Music, NetworkError>) -> Void) {
+        request(endpoint: .getKeywordMusic) { (result: Result<BaseResponse<Music>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let music = response.data {
+                    completion(.success(music))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取推荐关键词失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 获取首页所有分类模块
+    /// 接口：GET /service/music/getMusicCategory（data 为数组）
+    func getMusicCategory(completion: @escaping (Result<[MusicCategory], NetworkError>) -> Void) {
+        request(endpoint: .getMusicCategory) { (result: Result<BaseResponse<[MusicCategory]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? []))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取音乐分类失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 根据分类 id 获取音乐列表（分页）
+    /// 接口：GET /service/music/getMusicListByCategoryId?categoryId=&pageNum=&pageSize=
+    /// - Parameters:
+    ///   - categoryId: 分类 id
+    ///   - pageNum: 页码，从 1 开始
+    ///   - pageSize: 每页数量（首页模块取 3 条）
+    ///   - completion: 成功返回（歌曲数组, 总条数）
+    func getMusicListByCategoryId(
+        categoryId: Int,
+        pageNum: Int = 1,
+        pageSize: Int = 3,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "categoryId": categoryId,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getMusicListByCategoryId, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取音乐列表失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 根据分类 id 获取歌手列表（分页）
+    /// 接口：GET /service/music/getMusicAuthorListByCategoryId?categoryId=&pageNum=&pageSize=
+    /// - Parameter categoryId: 歌手分类 id，0 表示全部（首页「推荐歌手」模块用 0）
+    func getMusicAuthorListByCategoryId(
+        categoryId: Int = 0,
+        pageNum: Int = 1,
+        pageSize: Int = 4,
+        completion: @escaping (Result<[MusicAuthor], NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "categoryId": categoryId,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getMusicAuthorListByCategoryId, parameters: parameters) { (result: Result<BaseResponse<[MusicAuthor]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? []))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取歌手列表失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 点赞（喜欢）音乐
+    /// 接口：POST /service/music/insertMusicLike/{musicId}
+    /// - Returns: 影响行数，> 0 表示成功
+    func insertMusicLike(musicId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .insertMusicLike(musicId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "点赞失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 取消点赞（取消喜欢）音乐
+    /// 接口：DELETE /service/music/deleteMusicLike/{musicId}
+    /// - Returns: 影响行数，> 0 表示成功
+    func deleteMusicLike(musicId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .deleteMusicLike(musicId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "取消点赞失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+}

@@ -40,14 +40,21 @@ swift-music-app/music/                     # Git 仓库根
 │   ├── App/MusicApp.swift                 # @main，根视图 = WelcomePage
 │   ├── Api/APIEndpoints.swift             # APIEndpoint 枚举：path + method
 │   ├── Config/Constants.swift             # baseURL / webSocketURL / Constants.API 路径表
-│   ├── Models/                            # 数据模型 + AppState + PlayerState + BaseResponse
+│   ├── Models/                            # 数据模型
+│   │   ├── AppState.swift                 # 登录态 / 用户信息（全局单例）
+│   │   ├── PlayerState.swift              # 播放态：当前歌曲 / 播放列表 / 循环模式 / 模块名
+│   │   ├── Music.swift                    # 歌曲模型
+│   │   ├── MusicCategory.swift            # 音乐分类（首页模块）
+│   │   ├── MusicAuthor.swift              # 歌手模型
+│   │   ├── DecodingHelpers.swift          # 宽容解码（Int/String 兼容）
+│   │   └── ...                            # User / Company / BaseResponse 等
 │   ├── Network/HTTPClient.swift           # 网络单例，统一 request<T> + 全部业务接口
 │   ├── Network/WebSocketManager.swift     # WebSocket（AI 对话，暂未启用）
 │   ├── Theme/Colors.swift                 # 全部颜色
 │   ├── Theme/Dimens.swift                 # 全部尺寸、字号、间距
 │   ├── Utils/TokenManager.swift           # token 读写
 │   ├── Utils/Validators.swift             # 邮箱等校验
-│   ├── Utils/MusicUtils.swift             # 封面地址拼接等音乐工具方法
+│   ├── Utils/MusicUtils.swift             # 封面地址拼接（含 http→https 升级）等音乐工具方法
 │   ├── UI/Pages/                          # 完整页面
 │   │   ├── WelcomePage.swift              # 欢迎页（校验登录态）
 │   │   ├── LoginPage.swift                # 登录（账号密码 / 邮箱验证码）
@@ -56,7 +63,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── ResetPasswordPage.swift        # 重置密码
 │   │   ├── UserInfoPage.swift             # 用户信息
 │   │   ├── MusicIndexPage.swift           # 主页：四 Tab 容器 + 底部迷你播放器
-│   │   ├── MusicHomePage.swift            # 首页 Tab（占位）
+│   │   ├── MusicHomePage.swift            # 首页 Tab：搜索栏 + 分类入口 + 榜单/歌手模块
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab（占位）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
 │   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
@@ -66,8 +73,17 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── CustomTextField.swift          # 圆角输入框
 │   │   ├── HomeTabBar.swift               # 首页底部 Tab 栏（含中央凹槽）
 │   │   ├── MiniPlayerView.swift           # 中央迷你播放器（旋转唱片）
-│   │   └── PlaceholderPage.swift          # 占位页（统一 hello world）
-│   ├── Assets.xcassets                    # AppIcon / AccentColor / icon_logo / 底部 Tab 图标
+│   │   ├── MusicSearchBar.swift           # 首页搜索栏（头像 + 关键词 + AI）
+│   │   ├── MusicCategoryEntryRow.swift    # 首页四个分类入口
+│   │   ├── MusicModuleHeader.swift        # 模块标题栏（折叠 + 更多）
+│   │   ├── MusicModuleCard.swift          # 歌曲模块卡片（3 首 + 点赞）
+│   │   ├── MusicSingerCard.swift          # 推荐歌手模块卡片
+│   │   ├── MusicSongRow.swift             # 歌曲行
+│   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
+│   │   ├── UserAvatar.swift               # 当前用户头像
+│   │   ├── PlaceholderPage.swift          # 占位页（统一 hello world）
+│   │   └── PlaceholderDetailPage.swift    # 二级页面占位（带返回栏）
+│   ├── Assets.xcassets                    # AppIcon / icon_logo / Tab 图标 / 首页图标 / 默认封面头像
 │   └── Resources/                          # 静态图片资源
 ├── README.md
 ├── 提示词.md                               # AI 开发规范（最高优先级约束）
@@ -117,12 +133,39 @@ WelcomePage（校验 token）
                        └→ ForgetPasswordPage → ResetPasswordPage ─── 重置成功 → MusicIndexPage
 
 MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter MusicIndexPage.dart）
-  ├─ 首页   → MusicHomePage（占位）
+  ├─ 首页   → MusicHomePage（搜索栏 + 分类入口 + 榜单/歌手模块）
   ├─ 推荐   → MusicRecommentPage（占位）
   ├─ 音乐圈 → MusicCirclePage（占位）
   ├─ 我的   → MusicUserPage（占位）
   └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage（占位）
 ```
+
+### 首页（MusicHomePage）实现要点
+
+| 能力 | 说明 | 对应的 uniapp / flutter |
+|------|------|--------------------------|
+| 搜索栏 | 用户头像 + 推荐关键词（`getKeywordMusic`）+ AI 入口 | `MusicSearchComponent` / `buildSearchWidget` |
+| 分类入口 | 歌手 / 分类歌曲 / 经典老歌 / 热门榜单（前两个可点） | `.category-wrapper` / `buildClassifyWidget` |
+| 榜单模块 | 每个分类一张卡片，展示前 3 首歌，可折叠、可看更多 | `MusicClassifyComponent` / `buildMusicModuleByClassifyIdWidget` |
+| 推荐歌手模块 | `category/classify == 推荐歌手` 时展示 4 个歌手 | `MusicSingerComponent` / `buildMusicAuthorListWidget` |
+| 分页 | 初始 3 个模块，滚动到底 +1，到底显示「已经到底了」 | `pageNum` / `EasyRefresh.onLoad` |
+| 播放 | 点歌 → 立即播放 + 拉取整榜单作为播放列表 → 进播放页 | `usePlayMusic` |
+| 点赞 | 喜欢 / 取消喜欢（`insertMusicLike` / `deleteMusicLike`） | `MusicClassifyListComponent.useLike` |
+| 二级页面 | 搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI / 个人中心 → 占位页 | `uni.navigateTo(...)` |
+
+接口一览（音乐模块，全部走网关 `http://127.0.0.1:4000`）：
+
+| 接口 | 方法 | 用途 |
+|------|------|------|
+| `/service/music/getKeywordMusic` | GET | 搜索框推荐关键词（单曲） |
+| `/service/music/getMusicCategory` | GET | 首页分类模块列表 |
+| `/service/music/getMusicListByCategoryId` | GET | 分类歌曲（分页，首页取 3 条） |
+| `/service/music/getMusicAuthorListByCategoryId` | GET | 推荐歌手（首页取 4 个） |
+| `/service/music/insertMusicLike/{musicId}` | POST | 点赞 |
+| `/service/music/deleteMusicLike/{musicId}` | DELETE | 取消点赞 |
+
+> 封面/头像统一走 `MusicUtils.coverURL(_:)`：相对路径拼 `baseURL`，外链自动把 `http://` 升级为 `https://`
+> （iOS ATS 默认禁止 http 明文，第三方封面常是 http，不升级会一直落到默认图）。
 
 ### 主页容器（MusicIndexPage）实现要点
 
@@ -155,13 +198,13 @@ xcodebuild -project music.xcodeproj -scheme music \
 |------|------|------|
 | 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ MusicIndexPage 占位 | ✅ 已完成 |
 | 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
-| 三 | 首页 Tab 内容（轮播、分类入口、热门榜单，接入 music 模块接口） | ⏳ 待开发 |
+| 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 推荐 / 音乐圈 / 我的 三个 Tab 的正式内容 | ⏳ 待开发 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、评论点赞收藏） | ⏳ 待开发 |
-| 六 | 二级跳转页（分类歌曲列表、歌手页、歌手专辑页、搜索结果、播放记录等） | ⏳ 待开发 |
+| 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、播放记录等） | ⏳ 待开发 |
 
-> 二级跳转页与四个 Tab 的正式内容当前统一用 `PlaceholderPage`（hello world + 页面名）占位，
-> 保证登录 → 首页 → Tab 切换 → 播放页的整条链路先跑通。
+> 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
+> `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。
 
 ## 界面预览
 

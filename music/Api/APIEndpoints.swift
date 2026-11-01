@@ -50,6 +50,14 @@ enum APIEndpoint {
     case deletePrompt(String)
     case insertPrompt
     
+    // MARK: - 音乐模块
+    case getKeywordMusic
+    case getMusicCategory
+    case getMusicListByCategoryId
+    case getMusicAuthorListByCategoryId
+    case insertMusicLike(Int)
+    case deleteMusicLike(Int)
+    
     var path: String {
         switch self {
         case .login:
@@ -141,16 +149,28 @@ enum APIEndpoint {
                 .replacingOccurrences(of: "{tenantId}", with: promptId)
         case .insertPrompt:
             return Constants.API.insertPrompt
+        case .getKeywordMusic:
+            return Constants.API.getKeywordMusic
+        case .getMusicCategory:
+            return Constants.API.getMusicCategory
+        case .getMusicListByCategoryId:
+            return Constants.API.getMusicListByCategoryId
+        case .getMusicAuthorListByCategoryId:
+            return Constants.API.getMusicAuthorListByCategoryId
+        case .insertMusicLike(let musicId):
+            return Constants.API.insertMusicLike.replacingOccurrences(of: "{musicId}", with: String(musicId))
+        case .deleteMusicLike(let musicId):
+            return Constants.API.deleteMusicLike.replacingOccurrences(of: "{musicId}", with: String(musicId))
         }
     }
     
     var method: String {
         switch self {
-        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel:
+        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike:
             return "POST"
-        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList:
+        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId:
             return "GET"
-        case .deleteDoc,.deletePrompt,.deleteModel:
+        case .deleteDoc,.deletePrompt,.deleteModel,.deleteMusicLike:
             return "DELETE"
         case .updateUser, .updatePassword, .updatePrompt, .addAdmin, .cancelAdmin,.updateModel,.updateDocPermission:
             return "PUT"
