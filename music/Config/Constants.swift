@@ -17,6 +17,14 @@ struct Constants {
         static let maxAge: TimeInterval = 3600 * 24 * 30 // 1个月
     }
     
+    /// 本地缓存 key（与 uniapp 版本的 uni.setStorage key 保持一致，方便两端对齐）
+    struct StorageKey {
+        static let music = "MUSIC_STORAGE_KEY"            // 当前播放的音乐
+        static let musicList = "MUSIC_LIST_STORAGE_KEY"   // 播放列表
+        static let loopMode = "LOOP_STORAGE_KEY"          // 循环播放模式
+        static let circleUpdateTime = "CIRCLE_UPDATE_TIME" // 音乐圈上次查看时间
+    }
+    
     // API路径
     struct API {
         static let login = "/service/user/login"

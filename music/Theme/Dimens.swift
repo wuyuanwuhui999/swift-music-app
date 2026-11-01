@@ -25,6 +25,16 @@ struct Dimens {
     static let inputHeight: CGFloat = 50
     
     static let borderRadius: CGFloat = 10
+    
+    // MARK: - 音乐项目独有尺寸（对齐 flutter-music-app-ui 的 ThemeSize）
+    /// 底部 Tab 栏高度
+    static let bottomBarHeight: CGFloat = 85
+    /// 底部中央迷你播放器直径（flutter: minPlayIcon）
+    static let miniPlayerSize: CGFloat = 80
+    /// 迷你播放器外圈描边宽度（页面背景色，用于做「凹槽」效果）
+    static let miniPlayerBorder: CGFloat = 3
+    /// 音乐圈未读红点直径
+    static let redCircle: CGFloat = 8
 }
 
 // 扩展CGFloat以便更方便使用

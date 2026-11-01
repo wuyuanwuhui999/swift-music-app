@@ -40,13 +40,14 @@ swift-music-app/music/                     # Git 仓库根
 │   ├── App/MusicApp.swift                 # @main，根视图 = WelcomePage
 │   ├── Api/APIEndpoints.swift             # APIEndpoint 枚举：path + method
 │   ├── Config/Constants.swift             # baseURL / webSocketURL / Constants.API 路径表
-│   ├── Models/                            # 数据模型 + AppState + BaseResponse
+│   ├── Models/                            # 数据模型 + AppState + PlayerState + BaseResponse
 │   ├── Network/HTTPClient.swift           # 网络单例，统一 request<T> + 全部业务接口
 │   ├── Network/WebSocketManager.swift     # WebSocket（AI 对话，暂未启用）
 │   ├── Theme/Colors.swift                 # 全部颜色
 │   ├── Theme/Dimens.swift                 # 全部尺寸、字号、间距
 │   ├── Utils/TokenManager.swift           # token 读写
 │   ├── Utils/Validators.swift             # 邮箱等校验
+│   ├── Utils/MusicUtils.swift             # 封面地址拼接等音乐工具方法
 │   ├── UI/Pages/                          # 完整页面
 │   │   ├── WelcomePage.swift              # 欢迎页（校验登录态）
 │   │   ├── LoginPage.swift                # 登录（账号密码 / 邮箱验证码）
@@ -54,11 +55,19 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── ForgetPasswordPage.swift       # 忘记密码
 │   │   ├── ResetPasswordPage.swift        # 重置密码
 │   │   ├── UserInfoPage.swift             # 用户信息
-│   │   └── HomePage.swift                 # 主页（当前仅 hello world 占位）
+│   │   ├── HomePage.swift                 # 主页：四 Tab 容器 + 底部迷你播放器
+│   │   ├── MusicHomePage.swift            # 首页 Tab（占位）
+│   │   ├── MusicRecommentPage.swift       # 推荐 Tab（占位）
+│   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
+│   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
+│   │   └── MusicPlayerPage.swift          # 音乐播放页（占位）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
-│   │   └── CustomTextField.swift          # 圆角输入框
-│   ├── Assets.xcassets                    # AppIcon / AccentColor / icon_logo
+│   │   ├── CustomTextField.swift          # 圆角输入框
+│   │   ├── HomeTabBar.swift               # 首页底部 Tab 栏（含中央凹槽）
+│   │   ├── MiniPlayerView.swift           # 中央迷你播放器（旋转唱片）
+│   │   └── PlaceholderPage.swift          # 占位页（统一 hello world）
+│   ├── Assets.xcassets                    # AppIcon / AccentColor / icon_logo / 底部 Tab 图标
 │   └── Resources/                          # 静态图片资源
 ├── README.md
 ├── 提示词.md                               # AI 开发规范（最高优先级约束）
@@ -102,12 +111,28 @@ swift-music-app/music/                     # Git 仓库根
 
 ```
 WelcomePage（校验 token）
-  ├─ 有效 → HomePage（hello world 占位）
+  ├─ 有效 → HomePage
   └─ 无效 → LoginPage ─┬→ 登录成功 → HomePage
                        ├→ RegisterPage ─── 注册成功 → HomePage
                        └→ ForgetPasswordPage → ResetPasswordPage ─── 重置成功 → HomePage
-HomePage（后续迭代：底部 Tab = 首页 / 推荐 / 音乐圈 / 我的，用户信息 → UserInfoPage）
+
+HomePage（四 Tab 容器，对齐 uniapp MusicIndexPage / flutter MusicIndexPage）
+  ├─ 首页   → MusicHomePage（占位）
+  ├─ 推荐   → MusicRecommentPage（占位）
+  ├─ 音乐圈 → MusicCirclePage（占位）
+  ├─ 我的   → MusicUserPage（占位）
+  └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage（占位）
 ```
+
+### 首页（HomePage）实现要点
+
+| 能力 | 说明 |
+|------|------|
+| 四 Tab 切换 | `HomeTabBar` + `selectedIndex`，选中态用 `*_active` 图标 + `Colors.primaryColor` 文字 |
+| Tab 懒加载 | `initializedTabs`：只有点过的 Tab 才创建视图（对齐 uniapp `isInitComponent`） |
+| 状态保留 | 已创建的 Tab 用 `opacity` + `allowsHitTesting` 隐藏，切回来不重建（对齐 `v-show` / keepAlive） |
+| 中央迷你播放器 | `MiniPlayerView`：外圈页面背景色做凹槽，内圈封面；播放中 10 秒转一圈 |
+| 播放状态 | `PlayerState.shared`：当前歌曲 / 播放列表 / 循环模式，`UserDefaults` 持久化，进首页时恢复 |
 
 ## 运行方式
 
@@ -129,10 +154,14 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 阶段 | 内容 | 状态 |
 |------|------|------|
 | 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ HomePage 占位 | ✅ 已完成 |
-| 二 | 首页 / 推荐 / 分类 / 排行榜（music 模块接口） | ⏳ 待开发 |
-| 三 | 音乐播放页 / 歌词页 / 播放控制与后台播放 | ⏳ 待开发 |
-| 四 | 音乐圈（动态、评论、点赞）、收藏与播放记录 | ⏳ 待开发 |
-| 五 | 「我的」页与设置、头像上传、修改密码 | ⏳ 待开发 |
+| 二 | HomePage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
+| 三 | 首页 Tab 内容（轮播、分类入口、热门榜单，接入 music 模块接口） | ⏳ 待开发 |
+| 四 | 推荐 / 音乐圈 / 我的 三个 Tab 的正式内容 | ⏳ 待开发 |
+| 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、评论点赞收藏） | ⏳ 待开发 |
+| 六 | 二级跳转页（分类歌曲列表、歌手页、歌手专辑页、搜索结果、播放记录等） | ⏳ 待开发 |
+
+> 二级跳转页与四个 Tab 的正式内容当前统一用 `PlaceholderPage`（hello world + 页面名）占位，
+> 保证登录 → 首页 → Tab 切换 → 播放页的整条链路先跑通。
 
 ## 界面预览
 
