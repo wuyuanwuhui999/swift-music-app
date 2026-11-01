@@ -49,6 +49,18 @@ struct Dimens {
     static let musicArrowIcon: CGFloat = 20
     /// 首页搜索框高度（uniapp @middle-avater 80rpx）
     static let musicSearchHeight: CGFloat = 40
+
+    // MARK: - 播放页专用尺寸（对齐 uniapp 的 rpx 值）
+    /// 唱片直径（uniapp @play-circle-size 500rpx）
+    static let playerDisc: CGFloat = 250
+    /// 唱片内圈内边距（uniapp @middle-avater 80rpx）
+    static let playerDiscPadding: CGFloat = 40
+    /// 播放 / 暂停圆钮直径（uniapp @big-avater 120rpx）
+    static let playerCircle: CGFloat = 60
+    /// 播放 / 暂停圆钮描边宽度（uniapp @border-size 5rpx）
+    static let playerCircleBorder: CGFloat = 2.5
+    /// 播放页循环模式弹层宽度（uniapp @popup-menu-width 300rpx）
+    static let playerLoopMenuWidth: CGFloat = 150
 }
 
 // 扩展CGFloat以便更方便使用

@@ -18,6 +18,14 @@ struct Colors {
     
     // 页面背景颜色
     static let pageBackgroundColor = Color(red: 239/255, green: 239/255, blue: 239/255)
+
+    // MARK: - 播放页专用
+    /// 半透明黑：唱片外圈底色 / 进度条未选中部分（uniapp rgba(0,0,0,0.1)）
+    static let opacityBlack = Color.black.opacity(0.1)
+    /// 半透明白：唱片外圈、进度条底色（uniapp rgba(255,255,255,0.2)）
+    static let opacityWhite = Color.white.opacity(0.3)
+    /// 唱片渐变中间色（uniapp @linear-gradient #333）
+    static let discGradient = Color(red: 51/255, green: 51/255, blue: 51/255)
 }
 
 // 扩展Color以便更方便使用

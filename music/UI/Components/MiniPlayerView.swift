@@ -34,7 +34,7 @@ struct MiniPlayerView: View {
             ZStack {
                 // 外圈：页面背景色，做出白 Tab 栏上的凹槽
                 Circle()
-                    .fill(Colors.primaryColor)
+                    .fill(Colors.pageBackgroundColor)
                     .frame(width: Dimens.miniPlayerSize, height: Dimens.miniPlayerSize)
 
                 // 内圈：封面 / 占位音符

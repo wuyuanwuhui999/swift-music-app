@@ -55,6 +55,8 @@ swift-music-app/music/                     # Git 仓库根
 │   ├── Utils/TokenManager.swift           # token 读写
 │   ├── Utils/Validators.swift             # 邮箱等校验
 │   ├── Utils/MusicUtils.swift             # 封面地址拼接（含 http→https 升级）等音乐工具方法
+│   ├── Utils/AudioPlayerManager.swift     # 音频引擎（AVPlayer 封装：播放/暂停/跳转/进度）
+│   ├── Utils/LyricParser.swift            # LRC 歌词解析（当前行计算）
 │   ├── UI/Pages/                          # 完整页面
 │   │   ├── WelcomePage.swift              # 欢迎页（校验登录态）
 │   │   ├── LoginPage.swift                # 登录（账号密码 / 邮箱验证码）
@@ -67,7 +69,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab（占位）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
 │   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
-│   │   └── MusicPlayerPage.swift          # 音乐播放页（占位）
+│   │   └── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -80,6 +82,8 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicSingerCard.swift          # 推荐歌手模块卡片
 │   │   ├── MusicSongRow.swift             # 歌曲行
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
+│   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
+│   │   ├── LyricScrollView.swift          # 播放页同步歌词
 │   │   ├── UserAvatar.swift               # 当前用户头像
 │   │   ├── PlaceholderPage.swift          # 占位页（统一 hello world）
 │   │   └── PlaceholderDetailPage.swift    # 二级页面占位（带返回栏）
@@ -167,6 +171,31 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 > 封面/头像统一走 `MusicUtils.coverURL(_:)`：相对路径拼 `baseURL`，外链自动把 `http://` 升级为 `https://`
 > （iOS ATS 默认禁止 http 明文，第三方封面常是 http，不升级会一直落到默认图）。
 
+### 播放页（MusicPlayerPage）实现要点
+
+对齐 flutter `MusicPlayerPage.dart` / uniapp `MusicPlayerPage.vue`：
+
+| 能力 | 说明 |
+|------|------|
+| 背景 | 封面模糊铺满全屏（blur 50），无封面用 `default_cover` |
+| 唱片 | 半透明黑外圈 + 黑→#333→黑渐变环 + 封面，播放时 10 秒转一圈 |
+| 歌词 | `LyricParser` 解析 LRC，当前行不透明、其余 0.5，随进度自动居中滚动；无歌词显示「暂无歌词」 |
+| 进度 | 当前时间 + 滑块 + 总时长；拖动时只更新 UI，松手才 `seek`，避免频繁跳转 |
+| 控制栏 | 循环模式（顺序 / 单曲 / 随机，弹层选择并持久化）+ 上一首 + 播放暂停 + 下一首 + 播放列表 |
+| 播完 | 单曲循环重播；顺序 / 随机自动下一首 |
+| 操作栏 | 收藏（喜欢，接 `insertMusicLike` / `deleteMusicLike`）、分享、评论、收藏夹（后三个为占位页） |
+
+音频层分工：
+
+```
+MusicPlayerPage（只观察 PlayerState）
+   └→ PlayerState.shared        业务状态：当前歌曲 / 播放列表 / 循环模式 / 喜欢状态
+         └→ AudioPlayerManager   AVPlayer 封装：load / play / pause / seek / 进度 / 播完回调
+```
+
+> 音频地址优先用后端转发的 `localPlayUrl`（`baseURL + localPlayUrl`），没有再退化到外网 `playUrl`；
+> 播放前会配置 `AVAudioSession(.playback)`，保证静音键打开时也能出声。
+
 ### 主页容器（MusicIndexPage）实现要点
 
 | 能力 | 说明 |
@@ -200,8 +229,8 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 推荐 / 音乐圈 / 我的 三个 Tab 的正式内容 | ⏳ 待开发 |
-| 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、评论点赞收藏） | ⏳ 待开发 |
-| 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、播放记录等） | ⏳ 待开发 |
+| 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
+| 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、歌词页、评论/收藏夹/分享等） | ⏳ 待开发 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。
