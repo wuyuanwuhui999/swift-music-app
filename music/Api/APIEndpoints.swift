@@ -55,6 +55,7 @@ enum APIEndpoint {
     case getMusicCategory
     case getMusicListByCategoryId
     case getMusicAuthorListByCategoryId
+    case searchMusic
     case insertMusicLike(Int)
     case deleteMusicLike(Int)
 
@@ -172,6 +173,8 @@ enum APIEndpoint {
             return Constants.API.getMusicListByCategoryId
         case .getMusicAuthorListByCategoryId:
             return Constants.API.getMusicAuthorListByCategoryId
+        case .searchMusic:
+            return Constants.API.searchMusic
         case .insertMusicLike(let musicId):
             return Constants.API.insertMusicLike.replacingOccurrences(of: "{musicId}", with: String(musicId))
         case .deleteMusicLike(let musicId):
@@ -207,7 +210,7 @@ enum APIEndpoint {
         switch self {
         case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertFavoriteDirectory:
             return "POST"
-        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getFavoriteDirectory:
+        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getFavoriteDirectory:
             return "GET"
         case .deleteDoc,.deletePrompt,.deleteModel,.deleteMusicLike,.deleteLike,.deleteFavoriteAuthor,.deleteFavoriteDirectory:
             return "DELETE"

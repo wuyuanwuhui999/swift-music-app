@@ -12,7 +12,7 @@ import SwiftUI
 /// 「分类歌曲列表」需要携带被点击的模块，所以用关联值传参，
 /// 避免依赖「先设置另一个 @State 再设置 route」这种跨状态时序（fullScreenCover 里读到旧值会拿到 nil）。
 enum MusicDetailRoute: Identifiable {
-    case search          // 搜索页
+    case search(String)  // 搜索页（携带首页推荐关键词，作为输入框提示）
     case authorCategory  // 歌手分类
     case categoryList    // 分类歌曲
     case classifyList(MusicCategory)   // 榜单歌曲列表（携带模块）
@@ -84,7 +84,7 @@ struct MusicHomePage: View {
                     keyword: keyword,
                     userAvatar: appState.userData?.avater,
                     onAvatarTap: { route = .user },
-                    onSearchTap: { route = .search },
+                    onSearchTap: { route = .search(keyword) },
                     onAITap: { route = .chat }
                 )
 
@@ -120,6 +120,9 @@ struct MusicHomePage: View {
             switch route {
             case .player:
                 MusicPlayerPage()
+            case .search(let searchKeyword):
+                // 搜索页（推荐关键词由 route 直接带过来）
+                MusicSearchPage(keyword: searchKeyword)
             case .classifyList(let category):
                 // 分类歌曲列表页（模块由 route 直接带过来）
                 MusicClassifyListPage(category: category)

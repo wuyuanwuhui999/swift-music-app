@@ -72,6 +72,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicUserPage.swift            # 我的 Tab：用户信息 + 收藏夹 + 喜欢 + 关注歌手 + 播放记录
 │   │   ├── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   │   ├── MusicClassifyListPage.swift    # 分类歌曲列表页（首页模块「更多」进入）
+│   │   ├── MusicSearchPage.swift          # 搜索页：搜索栏 + 历史搜索 + 结果列表
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -89,6 +90,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicSectionHeader.swift        # 模块标题栏（折叠箭头 + 标题 + 右侧操作）
 │   │   ├── MusicUserListRow.swift          # 「我的」页通用列表行
 │   │   ├── MusicNavBar.swift               # 二级页面通用导航栏（返回 + 居中标题）
+│   │   ├── FlowLayout.swift                # 自动换行流式布局（历史搜索标签）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -214,6 +216,23 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 
+### 搜索页（MusicSearchPage）实现要点
+
+首页点搜索框进入，首页的推荐关键词（`getKeywordMusic`）作为输入框提示语。
+
+| 能力 | 说明 |
+|------|------|
+| 搜索栏 | 圆角输入框 + 清除图标（有内容才显示）+ 主题色「搜索」按钮，键盘回车也能搜 |
+| 历史搜索 | 最多 20 条，逗号分隔存 `UserDefaults`（`StorageKey.musicSearchHistory`），已存在则提到最前；空时显示「暂无搜索记录」 |
+| 结果列表 | 复用 `MusicSongRow`（封面 + 「歌手 - 歌名」+ 播放状态 + 喜欢 + 菜单），行间分割线 |
+| 分页 | 每页 20 条，滚动到底加载下一页，到底显示「已经到底了」 |
+| 输入为空 | 用首页推荐关键词兜底搜索（对齐 flutter / uniapp） |
+| 点歌 | 搜索结果作为播放列表、`classifyName` 设为「搜索」后进播放页 |
+| 喜欢 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
+
+- 历史标签用 `FlowLayout`（自定义 `Layout`）实现 flutter `Wrap` 的换行效果。
+- `MusicDetailRoute.search` 同样是带关联值的 case（`search(String)`），由 route 把关键词传给搜索页。
+
 ### 分类歌曲列表页（MusicClassifyListPage）实现要点
 
 首页任意模块标题栏点「更多」进入，展示该模块（榜单 / 分类）下的全部歌曲。
@@ -316,7 +335,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页已完成；搜索、歌手分类、歌手歌曲列表、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页已完成；歌手分类、歌手歌曲列表、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。

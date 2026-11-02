@@ -1784,6 +1784,37 @@ extension HTTPClient {
 // MARK: - 我的页面（收藏 / 播放记录 / 关注歌手 / 收藏夹）
 extension HTTPClient {
 
+    /// 搜索歌曲
+    /// 接口：GET /service/music/searchMusic?keyword=&pageNum=&pageSize=
+    /// - Parameters:
+    ///   - keyword: 搜索关键词（内部会做 URL 编码）
+    ///   - completion: 成功返回（歌曲数组, 总条数）
+    func searchMusic(
+        keyword: String,
+        pageNum: Int = 1,
+        pageSize: Int = Constants.MusicConfig.pageSize,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "keyword": keyword,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .searchMusic, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "搜索失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
     /// 我喜欢的歌曲
     /// 接口：GET /service/music/getMusicLike?pageNum=&pageSize=
     func getMusicLike(

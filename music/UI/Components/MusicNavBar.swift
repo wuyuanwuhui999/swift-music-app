@@ -31,7 +31,8 @@ struct MusicNavBar: View {
                 Image("icon_back")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: Dimens.middleIcon, height: Dimens.middleIcon)
+                    .frame(width: Dimens.middleIcon * 0.8, height: Dimens.middleIcon * 0.8)
+                    .opacity(0.2)
             }
             .buttonStyle(.plain)
 
@@ -48,7 +49,7 @@ struct MusicNavBar: View {
             Image("icon_back")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: Dimens.middleIcon, height: Dimens.middleIcon)
+                .frame(width: Dimens.musicArrowIcon, height: Dimens.musicArrowIcon)
                 .opacity(0)
         }
         .padding(.horizontal, Dimens.middleMargin)

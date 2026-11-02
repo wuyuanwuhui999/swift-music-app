@@ -23,6 +23,7 @@ struct Constants {
         static let musicList = "MUSIC_LIST_STORAGE_KEY"   // 播放列表
         static let loopMode = "LOOP_STORAGE_KEY"          // 循环播放模式
         static let circleUpdateTime = "CIRCLE_UPDATE_TIME" // 音乐圈上次查看时间
+        static let musicSearchHistory = "MUSIC_SEARCH_HISTORY_KEY" // 搜索历史（逗号分隔）
     }
 
     /// 音乐模块通用配置（对齐 uniapp `common/constant.ts`）
@@ -45,6 +46,10 @@ struct Constants {
         static let userAuthorCount = 5
         /// 「我的」页：播放记录展示条数（对齐 flutter 10 条）
         static let userRecordCount = 10
+        /// 搜索结果的播放列表名（对齐 uniapp 搜索页的 "搜索"）
+        static let searchClassifyName = "搜索"
+        /// 搜索历史最多保留条数（对齐 flutter 20 条）
+        static let searchHistoryMax = 20
     }
 
     /// 音乐圈 / 社交模块通用配置（对齐 uniapp `common/enum.ts` 的 CircleEnum / CommentEnum）
@@ -111,6 +116,7 @@ struct Constants {
         static let getMusicCategory = "/service/music/getMusicCategory"
         static let getMusicListByCategoryId = "/service/music/getMusicListByCategoryId"
         static let getMusicAuthorListByCategoryId = "/service/music/getMusicAuthorListByCategoryId"
+        static let searchMusic = "/service/music/searchMusic"
         static let insertMusicLike = "/service/music/insertMusicLike/{musicId}"
         static let deleteMusicLike = "/service/music/deleteMusicLike/{musicId}"
 
