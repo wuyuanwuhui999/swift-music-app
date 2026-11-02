@@ -14,7 +14,7 @@ import SwiftUI
 /// 对齐 flutter `MusicSearchPage.dart` 与 uniapp `MusicSearchPage.vue`：
 /// - 顶部搜索栏：圆角输入框 + 清除图标 + 「搜索」按钮
 /// - 未搜索时展示「历史搜索」（最多 20 条，本地持久化，逗号分隔），没有则显示「暂无搜索记录」
-/// - 搜索后展示歌曲列表（复用 `MusicSongRow`），滚动到底加载下一页，到底显示「已经到底了」
+/// - 搜索后展示歌曲列表（复用 `MusicSongListCard`，内部是 `MusicSongRow`），滚动到底加载下一页，到底显示「已经到底了」
 /// - 点歌：把搜索结果作为播放列表、模块名设为「搜索」后进播放页
 ///
 /// 接口：`GET /service/music/searchMusic?keyword=&pageNum=&pageSize=`
