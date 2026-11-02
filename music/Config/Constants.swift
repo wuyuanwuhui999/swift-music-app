@@ -39,6 +39,12 @@ struct Constants {
         static let homeSingerCount = 4
         /// 推荐页播放列表所属模块名（对齐 uniapp 推荐页的 "推荐歌曲"）
         static let recommendClassifyName = "推荐歌曲"
+        /// 「我的」页：我喜欢的歌曲展示条数（对齐 flutter 5 条）
+        static let userLikedCount = 5
+        /// 「我的」页：我关注的歌手展示条数
+        static let userAuthorCount = 5
+        /// 「我的」页：播放记录展示条数（对齐 flutter 10 条）
+        static let userRecordCount = 10
     }
 
     /// 音乐圈 / 社交模块通用配置（对齐 uniapp `common/enum.ts` 的 CircleEnum / CommentEnum）
@@ -107,6 +113,15 @@ struct Constants {
         static let getMusicAuthorListByCategoryId = "/service/music/getMusicAuthorListByCategoryId"
         static let insertMusicLike = "/service/music/insertMusicLike/{musicId}"
         static let deleteMusicLike = "/service/music/deleteMusicLike/{musicId}"
+
+        // MARK: - 我的（MusicUserPage）相关
+        static let getMusicLike = "/service/music/getMusicLike"
+        static let getMusicRecord = "/service/music/getMusicRecord"
+        static let getFavoriteAuthor = "/service/music/getFavoriteAuthor"
+        static let deleteFavoriteAuthor = "/service/music/deleteFavoriteAuthor/{authorId}"
+        static let getFavoriteDirectory = "/service/music/getFavoriteDirectory"
+        static let insertFavoriteDirectory = "/service/music/insertFavoriteDirectory"
+        static let deleteFavoriteDirectory = "/service/music/deleteFavoriteDirectory/{favoriteId}"
 
         // MARK: - 音乐圈 / 社交模块
         static let getCircleListByType = "/service/circle/getCircleListByType"

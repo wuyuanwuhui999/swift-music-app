@@ -69,7 +69,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicHomePage.swift            # 首页 Tab：搜索栏 + 分类入口 + 榜单/歌手模块
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（分页 + 下拉刷新）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab：动态流 + 点赞 / 评论 / 二级回复
-│   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
+│   │   ├── MusicUserPage.swift            # 我的 Tab：用户信息 + 收藏夹 + 喜欢 + 关注歌手 + 播放记录
 │   │   └── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
@@ -85,6 +85,8 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicRankRow.swift             # 带名次的歌曲行（推荐页）
 │   │   ├── MusicCircleCard.swift          # 音乐圈动态卡片（含点赞/评论气泡菜单）
 │   │   ├── CircleCommentRow.swift         # 音乐圈评论行（递归渲染二级回复）
+│   │   ├── MusicSectionHeader.swift        # 模块标题栏（折叠箭头 + 标题 + 右侧操作）
+│   │   ├── MusicUserListRow.swift          # 「我的」页通用列表行
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -144,7 +146,7 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
   ├─ 首页   → MusicHomePage（搜索栏 + 分类入口 + 榜单/歌手模块）
   ├─ 推荐   → MusicRecommentPage（带名次的推荐歌曲列表）
   ├─ 音乐圈 → MusicCirclePage（动态流 + 点赞 / 评论 / 二级回复）
-  ├─ 我的   → MusicUserPage（占位）
+  ├─ 我的   → MusicUserPage（收藏夹 / 我喜欢 / 我关注 / 播放记录）
   └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage
 ```
 
@@ -191,6 +193,24 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 >
 > 因此客户端对这两个写接口采用「乐观更新」：服务端业务报错时保留本地状态（数据确实在库里），
 > 只有真正的网络错误才回滚并提示；评论成功后按当前用户信息本地构造评论对象插入列表。
+
+### 我的（MusicUserPage）实现要点
+
+对齐 flutter `MusicUserPage.dart` / uniapp `MusicMyComponent.vue`：
+
+| 模块 | 内容 |
+|------|------|
+| 用户信息 | 大头像 + 昵称 + 签名 + 编辑入口（编辑页为占位页） |
+| 我的收藏夹 | 新建（弹窗输入名称）+ 刷新 + 列表（封面/首字 + 名称 + 「N首」+ 播放/菜单）；长按删除 |
+| 我喜欢的歌曲 | 刷新 + 更多（>5 条）+ 列表（封面 + 歌名 + 播放/菜单）；长按取消喜欢 |
+| 我关注的歌手 | 刷新 + 更多（>5 条）+ 列表（头像/首字 + 昵称 + 播放/菜单）；长按取消关注 |
+| 我最近播放的歌曲 | 刷新 + 更多（>10 条）+ 列表（封面 + 歌名 + 「听过N次」+ 播放/删除/菜单） |
+
+- 四个模块都可折叠（`MusicSectionHeader` 箭头旋转 90°），下拉刷新一次拉全部。
+- flutter 用左滑删除（Slidable），iOS 侧改为「长按 → 删除」上下文菜单 + 二次确认，交互更贴合系统习惯。
+- 收藏夹接口 `getFavoriteDirectory?musicId=` 的 `musicId` 是**必填**（后端用于标记当前歌曲是否已收藏），
+  我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
+- 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 
 ### 首页（MusicHomePage）实现要点
 
@@ -276,7 +296,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ MusicIndexPage 占位 | ✅ 已完成 |
 | 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
-| 四 | 推荐 Tab、音乐圈 Tab 正式内容；我的 Tab 待开发 | 🚧 部分完成 |
+| 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
 | 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、歌词页、评论/收藏夹/分享等） | ⏳ 待开发 |
 

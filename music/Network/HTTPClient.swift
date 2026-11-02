@@ -1781,6 +1781,156 @@ extension HTTPClient {
     }
 }
 
+// MARK: - 我的页面（收藏 / 播放记录 / 关注歌手 / 收藏夹）
+extension HTTPClient {
+
+    /// 我喜欢的歌曲
+    /// 接口：GET /service/music/getMusicLike?pageNum=&pageSize=
+    func getMusicLike(
+        pageNum: Int = 1,
+        pageSize: Int = 5,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = ["pageNum": pageNum, "pageSize": pageSize]
+
+        request(endpoint: .getMusicLike, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取喜欢的歌曲失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 我最近播放的歌曲
+    /// 接口：GET /service/music/getMusicRecord?pageNum=&pageSize=
+    func getMusicRecord(
+        pageNum: Int = 1,
+        pageSize: Int = 10,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = ["pageNum": pageNum, "pageSize": pageSize]
+
+        request(endpoint: .getMusicRecord, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取播放记录失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 我关注的歌手
+    /// 接口：GET /service/music/getFavoriteAuthor?pageNum=&pageSize=
+    func getFavoriteAuthor(
+        pageNum: Int = 1,
+        pageSize: Int = 5,
+        completion: @escaping (Result<([MusicAuthor], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = ["pageNum": pageNum, "pageSize": pageSize]
+
+        request(endpoint: .getFavoriteAuthor, parameters: parameters) { (result: Result<BaseResponse<[MusicAuthor]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取关注的歌手失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 取消关注歌手
+    /// 接口：DELETE /service/music/deleteFavoriteAuthor/{authorId}
+    func deleteFavoriteAuthor(authorId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .deleteFavoriteAuthor(authorId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "取消关注失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 我的收藏夹列表
+    /// 接口：GET /service/music/getFavoriteDirectory?musicId=
+    /// - Parameter musicId: 后端必填，用于标记「当前歌曲是否已在该收藏夹」；
+    ///   我的页面没有当前歌曲时传当前播放歌曲 id 或第一首喜欢的歌曲 id
+    func getFavoriteDirectory(
+        musicId: Int,
+        completion: @escaping (Result<[FavoriteDirectory], NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = ["musicId": musicId]
+
+        request(endpoint: .getFavoriteDirectory, parameters: parameters) { (result: Result<BaseResponse<[FavoriteDirectory]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? []))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取收藏夹失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 新建收藏夹
+    /// 接口：POST /service/music/insertFavoriteDirectory
+    func insertFavoriteDirectory(name: String, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        let parameters: [String: Any] = ["name": name]
+
+        request(endpoint: .insertFavoriteDirectory, parameters: parameters) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "新建收藏夹失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 删除收藏夹
+    /// 接口：DELETE /service/music/deleteFavoriteDirectory/{favoriteId}
+    func deleteFavoriteDirectory(favoriteId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .deleteFavoriteDirectory(favoriteId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "删除收藏夹失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+}
+
 // MARK: - 音乐圈 / 社交模块接口
 extension HTTPClient {
 
