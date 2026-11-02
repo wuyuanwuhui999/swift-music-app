@@ -163,6 +163,39 @@ struct MusicCircle: Codable, Equatable, Identifiable {
         circleComments = try? c.decodeIfPresent([CircleComment].self, forKey: .circleComments)
     }
 
+    /// 手动构造（发布成功后本地置顶展示用）
+    init(
+        id: Int,
+        content: String,
+        username: String? = nil,
+        useravater: String? = nil,
+        userId: String? = nil,
+        createTime: String? = nil,
+        type: String? = nil,
+        musicSongName: String? = nil,
+        musicAuthorName: String? = nil,
+        musicCover: String? = nil,
+        musicPlayUrl: String? = nil,
+        musicLocalPlayUrl: String? = nil,
+        circleLikes: [CircleLike]? = [],
+        circleComments: [CircleComment]? = []
+    ) {
+        self.id = id
+        self.content = content
+        self.username = username
+        self.useravater = useravater
+        self.userId = userId
+        self.createTime = createTime
+        self.type = type
+        self.musicSongName = musicSongName
+        self.musicAuthorName = musicAuthorName
+        self.musicCover = musicCover
+        self.musicPlayUrl = musicPlayUrl
+        self.musicLocalPlayUrl = musicLocalPlayUrl
+        self.circleLikes = circleLikes
+        self.circleComments = circleComments
+    }
+
     /// 点赞用户昵称拼成的文案（uniapp 用「、」连接）
     var likeUserNames: String {
         (circleLikes ?? []).compactMap { $0.username }.joined(separator: "、")

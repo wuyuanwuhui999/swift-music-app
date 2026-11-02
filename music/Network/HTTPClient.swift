@@ -1994,6 +1994,42 @@ extension HTTPClient {
 // MARK: - 音乐圈 / 社交模块接口
 extension HTTPClient {
 
+    /// 发布音乐圈动态
+    /// 接口：POST /service/circle/insertCircle（body：content、imgs、relationId、type、permission）
+    /// - Parameters:
+    ///   - content: 文字内容
+    ///   - relationId: 关联歌曲 id（分享音乐时为 musicId）
+    ///   - permission: 1 = 公开，0 = 私密
+    /// - Returns: 新动态 id
+    func insertCircle(
+        content: String,
+        relationId: Int,
+        type: String = Constants.CircleConfig.musicType,
+        permission: Int = Constants.CircleConfig.permissionPublic,
+        completion: @escaping (Result<Int, NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "content": content,
+            "imgs": "",
+            "relationId": relationId,
+            "type": type,
+            "permission": permission
+        ]
+
+        request(endpoint: .insertCircle, parameters: parameters) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? 0))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "发布失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
     /// 获取音乐圈动态列表
     /// 接口：GET /service/circle/getCircleListByType?type=MUSIC&pageNum=&pageSize=
     /// - Parameters:

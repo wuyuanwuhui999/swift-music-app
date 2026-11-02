@@ -65,6 +65,7 @@ enum APIEndpoint {
     case saveLike
     case deleteLike
     case insertComment
+    case insertCircle
 
     // MARK: - 我的页面
     case getMusicLike
@@ -190,6 +191,8 @@ enum APIEndpoint {
             return Constants.API.deleteLike
         case .insertComment:
             return Constants.API.insertComment
+        case .insertCircle:
+            return Constants.API.insertCircle
         case .getMusicLike:
             return Constants.API.getMusicLike
         case .getMusicRecord:
@@ -211,7 +214,7 @@ enum APIEndpoint {
     
     var method: String {
         switch self {
-        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertFavoriteDirectory:
+        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory:
             return "POST"
         case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getFavoriteDirectory:
             return "GET"

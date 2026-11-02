@@ -33,6 +33,7 @@ struct CircleCommentTarget: Identifiable {
 /// - `POST /service/social/insertComment` 评论 / 回复
 struct MusicCirclePage: View {
     @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var playerState = PlayerState.shared
 
     /// 动态列表
     @State private var circles: [MusicCircle] = []
@@ -116,7 +117,15 @@ struct MusicCirclePage: View {
             }
         }
         .fullScreenCover(isPresented: $showPublishPage) {
-            PlaceholderDetailPage(title: "发布动态")
+            // 发布页：有正在播放的歌就预填，没有则提示选歌
+            MusicSharePage(music: playerState.currentMusic)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .musicCircleDidUpdate)) { note in
+            // 发布成功后把新动态插到最前面（后端没写 create_time，拉列表会排到最后）
+            if let post = note.object as? MusicCircle, !circles.contains(where: { $0.id == post.id }) {
+                circles.insert(post, at: 0)
+                total += 1
+            }
         }
         .alert("提示", isPresented: Binding(
             get: { alertMessage != nil },

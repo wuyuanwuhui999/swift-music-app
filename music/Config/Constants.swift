@@ -60,6 +60,15 @@ struct Constants {
         static let musicCircleRelation = "MUSIC_CIRCLE"
         /// 每页条数（对齐 uniapp 音乐圈 pageSize）
         static let pageSize = 10
+        /// 动态可见范围：公开
+        static let permissionPublic = 1
+        /// 动态可见范围：私密
+        static let permissionPrivate = 0
+
+        /// 可见范围文案（对齐 uniapp `PermissionMap`）
+        static func permissionName(_ permission: Int) -> String {
+            permission == permissionPrivate ? "私密" : "公开"
+        }
     }
     
     // API路径
@@ -135,5 +144,6 @@ struct Constants {
         static let saveLike = "/service/social/saveLike"
         static let deleteLike = "/service/social/deleteLike"
         static let insertComment = "/service/social/insertComment"
+        static let insertCircle = "/service/circle/insertCircle"
     }
 }

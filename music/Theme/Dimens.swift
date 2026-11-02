@@ -69,6 +69,8 @@ struct Dimens {
     static let circleActionMenuHeight: CGFloat = 40
     /// 发布动态悬浮按钮直径（uniapp @middle-avater 80rpx）
     static let circlePublishButton: CGFloat = 40
+    /// 发布动态页文字输入区高度
+    static let shareTextAreaHeight: CGFloat = 160
 }
 
 // 扩展CGFloat以便更方便使用

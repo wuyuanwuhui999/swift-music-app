@@ -106,7 +106,13 @@ struct MusicPlayerPage: View {
             }
         }
         .fullScreenCover(item: $route) { route in
-            PlaceholderDetailPage(title: route.title)
+            switch route {
+            case .share:
+                // 分享到音乐圈：带上当前播放的歌曲
+                MusicSharePage(music: playerState.currentMusic)
+            default:
+                PlaceholderDetailPage(title: route.title)
+            }
         }
         .alert("提示", isPresented: Binding(
             get: { alertMessage != nil },

@@ -44,6 +44,15 @@ enum DateUtils {
         }
     }
 
+    /// 当前时间的后端格式字符串（发布动态后本地置顶展示用）
+    static func nowString() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter.string(from: Date())
+    }
+
     /// 解析后端时间字符串
     private static func parse(_ value: String) -> Date? {
         let formatter = DateFormatter()

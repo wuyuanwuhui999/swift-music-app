@@ -74,6 +74,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicClassifyListPage.swift    # 分类歌曲列表页（首页模块「更多」进入）
 │   │   ├── MusicSearchPage.swift          # 搜索页：搜索栏 + 历史搜索 + 结果列表
 │   │   ├── MusicAuthorListPage.swift      # 歌手歌曲列表页（某位歌手的全部歌曲）
+│   │   ├── MusicSharePage.swift           # 发布音乐圈动态页（文字 + 分享歌曲 + 可见范围）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -217,6 +218,23 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 
+### 发布动态页（MusicSharePage）实现要点
+
+入口：播放页「分享」、音乐圈右下角「+」。
+
+| 能力 | 说明 |
+|------|------|
+| 顶部按钮 | 取消（白底描边）/ 发布（主题色），发布中禁用并显示「发布中...」 |
+| 文字区 | 灰色圆角输入区，占位「这一刻的想法」 |
+| 分享歌曲 | 封面 + 「歌手 - 歌名」；没有歌曲时显示「请选择一首歌曲」，点击进入选歌页（占位） |
+| 可见范围 | 「谁可以看」+ 图标 + 当前值 + 箭头，点开可选公开 / 私密 |
+| 发布 | `POST /service/circle/insertCircle`（content、imgs、relationId、type、permission） |
+
+> ⚠️ 后端已知问题：`POST /service/circle/insertCircle` **不写 `create_time`**（入库为 NULL），
+> 而列表按 `create_time` 倒序，新动态会排到最后、看起来像没发出去。
+> 客户端因此在发布成功后本地构造一条动态（带当前时间和歌曲信息）通过 `Notification.Name.musicCircleDidUpdate`
+> 通知音乐圈列表置顶插入，保证「发完立刻能看到」。
+
 ### 歌手歌曲列表页（MusicAuthorListPage）实现要点
 
 入口：首页「推荐歌手」点某位歌手、我关注的歌手里点播放图标。
@@ -354,7 +372,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页已完成；歌手分类、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页已完成；歌手分类、歌词页、评论/收藏夹等 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。
