@@ -61,6 +61,14 @@ struct Dimens {
     static let playerCircleBorder: CGFloat = 2.5
     /// 播放页循环模式弹层宽度（uniapp @popup-menu-width 300rpx）
     static let playerLoopMenuWidth: CGFloat = 150
+
+    // MARK: - 音乐圈专用尺寸（对齐 uniapp 的 rpx 值）
+    /// 动态操作气泡菜单宽度（uniapp @popup-menu-width 300rpx）
+    static let circleActionMenuWidth: CGFloat = 150
+    /// 动态操作气泡菜单高度（uniapp @popup-menu-height 80rpx）
+    static let circleActionMenuHeight: CGFloat = 40
+    /// 发布动态悬浮按钮直径（uniapp @middle-avater 80rpx）
+    static let circlePublishButton: CGFloat = 40
 }
 
 // 扩展CGFloat以便更方便使用

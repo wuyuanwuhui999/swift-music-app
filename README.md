@@ -57,6 +57,7 @@ swift-music-app/music/                     # Git 仓库根
 │   ├── Utils/MusicUtils.swift             # 封面地址拼接（含 http→https 升级）等音乐工具方法
 │   ├── Utils/AudioPlayerManager.swift     # 音频引擎（AVPlayer 封装：播放/暂停/跳转/进度）
 │   ├── Utils/LyricParser.swift            # LRC 歌词解析（当前行计算）
+│   ├── Utils/DateUtils.swift              # 相对时间格式化（刚刚 / N分前 / 日期）
 │   ├── UI/Pages/                          # 完整页面
 │   │   ├── WelcomePage.swift              # 欢迎页（校验登录态）
 │   │   ├── LoginPage.swift                # 登录（账号密码 / 邮箱验证码）
@@ -67,7 +68,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicIndexPage.swift           # 主页：四 Tab 容器 + 底部迷你播放器
 │   │   ├── MusicHomePage.swift            # 首页 Tab：搜索栏 + 分类入口 + 榜单/歌手模块
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（分页 + 下拉刷新）
-│   │   ├── MusicCirclePage.swift          # 音乐圈 Tab（占位）
+│   │   ├── MusicCirclePage.swift          # 音乐圈 Tab：动态流 + 点赞 / 评论 / 二级回复
 │   │   ├── MusicUserPage.swift            # 我的 Tab（占位）
 │   │   └── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   ├── UI/Components/                     # 组件
@@ -82,6 +83,8 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicSingerCard.swift          # 推荐歌手模块卡片
 │   │   ├── MusicSongRow.swift             # 歌曲行
 │   │   ├── MusicRankRow.swift             # 带名次的歌曲行（推荐页）
+│   │   ├── MusicCircleCard.swift          # 音乐圈动态卡片（含点赞/评论气泡菜单）
+│   │   ├── CircleCommentRow.swift         # 音乐圈评论行（递归渲染二级回复）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -140,7 +143,7 @@ WelcomePage（校验 token）
 MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter MusicIndexPage.dart）
   ├─ 首页   → MusicHomePage（搜索栏 + 分类入口 + 榜单/歌手模块）
   ├─ 推荐   → MusicRecommentPage（带名次的推荐歌曲列表）
-  ├─ 音乐圈 → MusicCirclePage（占位）
+  ├─ 音乐圈 → MusicCirclePage（动态流 + 点赞 / 评论 / 二级回复）
   ├─ 我的   → MusicUserPage（占位）
   └─ 中央迷你播放器（旋转唱片）→ MusicPlayerPage
 ```
@@ -157,6 +160,37 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 | 下拉刷新 | 原生 `.refreshable`，回到第一页重新拉取 |
 | 播放 | 点歌立即播放；若当前播放列表不是「推荐歌曲」，拉整列表（500 条）作为播放列表后进播放页 |
 | 点赞 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
+
+### 音乐圈（MusicCirclePage）实现要点
+
+对齐 flutter `MusicCirclePage.dart` / uniapp `MusicCircleComponent.vue`：
+
+| 能力 | 说明 |
+|------|------|
+| 动态列表 | 头像 + 蓝色昵称 + 内容（最多 5 行）+ 分享歌曲条（封面/「歌名 - 歌手」/播放图标）+ 相对时间 + 操作菜单 |
+| 操作菜单 | 点「…」弹出「赞 / 评论」气泡（黑色半透明，点空白处收起） |
+| 点赞 | 点「赞 / 取消赞」：本地乐观更新 + `saveLike` / `deleteLike`；取消失败回滚并提示 |
+| 评论 | 底部输入条（`insertComment`），支持评论动态本身、回复一级评论、回复二级评论 |
+| 回复渲染 | 一级评论 + 递归展示 `replyList`，回复别人时昵称显示「昵称▶被回复人」 |
+| 分页 | 每页 10 条，滚动到底加载下一页，到底显示「已经到底了」；支持下拉刷新 |
+| 发布 | 右下角「+」按钮 → 发布页（当前为占位页） |
+
+接口一览（音乐圈 / 社交）：
+
+| 接口 | 方法 | 用途 |
+|------|------|------|
+| `/service/circle/getCircleListByType` | GET | 动态列表（type=MUSIC） |
+| `/service/social/saveLike` | POST | 点赞 |
+| `/service/social/deleteLike` | DELETE | 取消点赞（query：relationId、type） |
+| `/service/social/insertComment` | POST | 评论 / 回复 |
+
+> ⚠️ 后端已知问题（客户端已做兼容，建议修后端）：
+> 1. `POST /service/social/saveLike` 返回 `FAIL`（`name 'LikeSchema' is not defined`），但点赞记录**实际已写库**；
+> 2. `POST /service/social/insertComment` 返回 `FAIL`（`发表评论失败`），评论**实际已写库**，且 `data` 恒为 null；
+> 3. `DELETE /service/social/deleteComment/{id}` 返回「评论不存在」，删不掉评论。
+>
+> 因此客户端对这两个写接口采用「乐观更新」：服务端业务报错时保留本地状态（数据确实在库里），
+> 只有真正的网络错误才回滚并提示；评论成功后按当前用户信息本地构造评论对象插入列表。
 
 ### 首页（MusicHomePage）实现要点
 
@@ -242,7 +276,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 一 | 基础工程搭建 + 用户模块（登录 / 注册 / 忘记密码 / 重置密码 / 用户信息）+ MusicIndexPage 占位 | ✅ 已完成 |
 | 二 | MusicIndexPage 四 Tab 框架（Tab 切换 / 懒加载 / 中央迷你播放器 / 播放状态缓存）+ 五张占位页 | ✅ 已完成 |
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
-| 四 | 推荐 Tab（带名次的推荐列表、分页、下拉刷新、点赞、点歌进播放页）；音乐圈 / 我的 Tab 正式内容 | 🚧 部分完成 |
+| 四 | 推荐 Tab、音乐圈 Tab 正式内容；我的 Tab 待开发 | 🚧 部分完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
 | 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、歌词页、评论/收藏夹/分享等） | ⏳ 待开发 |
 

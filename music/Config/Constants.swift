@@ -40,6 +40,16 @@ struct Constants {
         /// 推荐页播放列表所属模块名（对齐 uniapp 推荐页的 "推荐歌曲"）
         static let recommendClassifyName = "推荐歌曲"
     }
+
+    /// 音乐圈 / 社交模块通用配置（对齐 uniapp `common/enum.ts` 的 CircleEnum / CommentEnum）
+    struct CircleConfig {
+        /// 音乐圈动态类型（查询动态列表用）
+        static let musicType = "MUSIC"
+        /// 音乐圈动态的点赞 / 评论关联类型
+        static let musicCircleRelation = "MUSIC_CIRCLE"
+        /// 每页条数（对齐 uniapp 音乐圈 pageSize）
+        static let pageSize = 10
+    }
     
     // API路径
     struct API {
@@ -97,5 +107,11 @@ struct Constants {
         static let getMusicAuthorListByCategoryId = "/service/music/getMusicAuthorListByCategoryId"
         static let insertMusicLike = "/service/music/insertMusicLike/{musicId}"
         static let deleteMusicLike = "/service/music/deleteMusicLike/{musicId}"
+
+        // MARK: - 音乐圈 / 社交模块
+        static let getCircleListByType = "/service/circle/getCircleListByType"
+        static let saveLike = "/service/social/saveLike"
+        static let deleteLike = "/service/social/deleteLike"
+        static let insertComment = "/service/social/insertComment"
     }
 }

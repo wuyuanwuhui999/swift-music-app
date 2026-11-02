@@ -1780,3 +1780,131 @@ extension HTTPClient {
         }
     }
 }
+
+// MARK: - 音乐圈 / 社交模块接口
+extension HTTPClient {
+
+    /// 获取音乐圈动态列表
+    /// 接口：GET /service/circle/getCircleListByType?type=MUSIC&pageNum=&pageSize=
+    /// - Parameters:
+    ///   - type: 动态类型，音乐圈为 `MUSIC`
+    ///   - pageNum: 页码，从 1 开始
+    ///   - pageSize: 每页数量
+    ///   - completion: 成功返回（动态数组, 总条数）
+    func getCircleListByType(
+        type: String = Constants.CircleConfig.musicType,
+        pageNum: Int = 1,
+        pageSize: Int = Constants.CircleConfig.pageSize,
+        completion: @escaping (Result<([MusicCircle], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "type": type,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getCircleListByType, parameters: parameters) { (result: Result<BaseResponse<[MusicCircle]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取音乐圈失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 点赞
+    /// 接口：POST /service/social/saveLike（body：type、relationId）
+    /// - Note: 后端目前会返回 FAIL（`LikeSchema` 未定义），但数据其实已经写库，
+    ///   调用方需要按「乐观更新」处理，见 `MusicCirclePage.toggleLike`。
+    func saveLike(
+        type: String = Constants.CircleConfig.musicCircleRelation,
+        relationId: Int,
+        completion: @escaping (Result<CircleLike?, NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "type": type,
+            "relationId": relationId
+        ]
+
+        request(endpoint: .saveLike, parameters: parameters) { (result: Result<BaseResponse<CircleLike>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "点赞失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 取消点赞
+    /// 接口：DELETE /service/social/deleteLike?relationId=&type=
+    /// - Returns: 影响行数，> 0 表示成功
+    func deleteLike(
+        relationId: Int,
+        type: String = Constants.CircleConfig.musicCircleRelation,
+        completion: @escaping (Result<Int, NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "relationId": relationId,
+            "type": type
+        ]
+
+        request(endpoint: .deleteLike, parameters: parameters) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess, let data = response.data {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "取消点赞失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 新增评论
+    /// 接口：POST /service/social/insertComment（body：content、parentId、topId、relationId、type）
+    /// - Parameters:
+    ///   - topId: 一级评论 id（回复一级评论时传它的 id，否则传 nil）
+    ///   - parentId: 被回复的评论 id（回复二级评论时传它，否则传 nil）
+    /// - Note: 后端的 data 返回 null，调用方需要本地构造一条评论对象用于展示。
+    func insertComment(
+        type: String = Constants.CircleConfig.musicCircleRelation,
+        relationId: Int,
+        content: String,
+        topId: Int? = nil,
+        parentId: Int? = nil,
+        completion: @escaping (Result<Void, NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "type": type,
+            "relationId": relationId,
+            "content": content,
+            "topId": topId ?? 0,
+            "parentId": parentId ?? 0
+        ]
+
+        request(endpoint: .insertComment, parameters: parameters) { (result: Result<BaseResponse<EmptyData>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(()))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "评论失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+}

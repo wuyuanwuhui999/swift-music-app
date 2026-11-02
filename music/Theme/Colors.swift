@@ -26,6 +26,9 @@ struct Colors {
     static let opacityWhite = Color.white.opacity(0.3)
     /// 唱片渐变中间色（uniapp @linear-gradient #333）
     static let discGradient = Color(red: 51/255, green: 51/255, blue: 51/255)
+
+    /// 蓝色辅助色：音乐圈昵称、点赞用户名（uniapp @blue-color #3e7d9b）
+    static let blueColor = Color(red: 62/255, green: 125/255, blue: 155/255)
 }
 
 // 扩展Color以便更方便使用
