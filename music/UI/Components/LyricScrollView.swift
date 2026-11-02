@@ -11,12 +11,16 @@ import SwiftUI
 ///
 /// 对齐 uniapp `.lyrice-scroll-wrapper` / flutter `buildLyric`：
 /// 居中展示 LRC 歌词，当前行不透明（1），其余行 0.5 透明；随播放进度自动滚动到当前行。
-/// 点击歌词区域进入歌词页（二级页面，当前占位）。
+/// 播放页点击歌词区域进入歌词全屏页（`MusicLyricPage`）。
 struct LyricScrollView: View {
     /// LRC 歌词原文
     let lyrics: String?
     /// 当前播放进度（秒）
     let position: Double
+    /// 歌词字号（播放页用小字，歌词全屏页用大字）
+    var fontSize: CGFloat = Dimens.normalFont
+    /// 行间距
+    var lineSpacing: CGFloat = Dimens.middleMargin
     /// 点歌词区域
     let onTap: () -> Void
 
@@ -27,16 +31,16 @@ struct LyricScrollView: View {
         ZStack {
             if lines.isEmpty {
                 Text("暂无歌词")
-                    .font(.system(size: Dimens.normalFont))
+                    .font(.system(size: fontSize))
                     .foregroundColor(Colors.whiteColor)
                     .opacity(0.5)
             } else {
                 ScrollViewReader { proxy in
                     ScrollView(.vertical, showsIndicators: false) {
-                        VStack(spacing: Dimens.middleMargin) {
+                        VStack(spacing: lineSpacing) {
                             ForEach(lines) { line in
                                 Text(line.text)
-                                    .font(.system(size: Dimens.normalFont))
+                                    .font(.system(size: fontSize))
                                     .fontWeight(.bold)
                                     .foregroundColor(Colors.whiteColor)
                                     .opacity(line.id == currentLineId ? 1 : 0.5)
@@ -51,6 +55,13 @@ struct LyricScrollView: View {
                         guard let newValue = newValue else { return }
                         withAnimation(.easeInOut(duration: 0.25)) {
                             proxy.scrollTo(newValue, anchor: .center)
+                        }
+                    }
+                    .onAppear {
+                        // 首次进入先滚到当前行，避免打开时停在歌词开头
+                        guard let id = currentLineId else { return }
+                        DispatchQueue.main.async {
+                            proxy.scrollTo(id, anchor: .center)
                         }
                     }
                 }

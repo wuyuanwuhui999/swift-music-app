@@ -75,6 +75,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicSearchPage.swift          # 搜索页：搜索栏 + 历史搜索 + 结果列表
 │   │   ├── MusicAuthorListPage.swift      # 歌手歌曲列表页（某位歌手的全部歌曲）
 │   │   ├── MusicSharePage.swift           # 发布音乐圈动态页（文字 + 分享歌曲 + 可见范围）
+│   │   ├── MusicLyricPage.swift           # 歌词全屏页（模糊封面 + 大字同步歌词）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -93,6 +94,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicUserListRow.swift          # 「我的」页通用列表行
 │   │   ├── MusicNavBar.swift               # 二级页面通用导航栏（返回 + 居中标题）
 │   │   ├── FlowLayout.swift                # 自动换行流式布局（历史搜索标签）
+│   │   ├── BlurredCoverBackground.swift    # 全屏模糊封面背景（播放页 / 歌词页共用）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -217,6 +219,21 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 - 收藏夹接口 `getFavoriteDirectory?musicId=` 的 `musicId` 是**必填**（后端用于标记当前歌曲是否已收藏），
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
+
+### 歌词全屏页（MusicLyricPage）实现要点
+
+入口：播放页点歌词区域（`MusicPlayerRoute.lyric`）。
+
+| 能力 | 说明 |
+|------|------|
+| 背景 | `BlurredCoverBackground`：封面铺满全屏 + blur 50，无封面退回 `default_cover`（播放页共用同一组件） |
+| 顶部 | 歌名（加粗）+ 歌手（80% 白） |
+| 歌词 | 复用 `LyricScrollView`，字号 `Dimens.bigFont`、行距 `Dimens.largeMargin`；当前行不透明、其余 0.5，随进度滚动居中 |
+| 返回 | 左上角半透明返回按钮；点歌词区域也能返回 |
+
+- 参考实现：flutter `MusicLyricPage.dart` 里歌词控件是注释掉的（页面只有一个模糊背景 + 空盒子），uniapp 也没有独立歌词页，
+  所以这里按播放页歌词区的视觉规范补全，不引入新接口。
+- `LyricScrollView` 增加 `fontSize` / `lineSpacing` 参数（默认值等于原播放页样式），并补了「首次进入先滚到当前行」。
 
 ### 发布动态页（MusicSharePage）实现要点
 
@@ -372,7 +389,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页已完成；歌手分类、歌词页、评论/收藏夹等 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页、歌词全屏页已完成；歌手分类、选歌页、评论/收藏夹等 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。

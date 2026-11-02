@@ -107,6 +107,9 @@ struct MusicPlayerPage: View {
         }
         .fullScreenCover(item: $route) { route in
             switch route {
+            case .lyric:
+                // 歌词全屏页
+                MusicLyricPage()
             case .share:
                 // 分享到音乐圈：带上当前播放的歌曲
                 MusicSharePage(music: playerState.currentMusic)
@@ -127,36 +130,11 @@ struct MusicPlayerPage: View {
     // MARK: - 视图组件
 
     /// 背景：封面模糊铺满全屏（无封面时用默认封面）
+    /// 全屏模糊封面背景（抽到 `BlurredCoverBackground`，与歌词页共用）
     private var backgroundView: some View {
-        GeometryReader { geometry in
-            Group {
-                if let urlString = MusicUtils.coverURL(music?.cover), let url = URL(string: urlString) {
-                    AsyncImage(url: url) { phase in
-                        if case .success(let image) = phase {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } else {
-                            defaultBackground
-                        }
-                    }
-                } else {
-                    defaultBackground
-                }
-            }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .clipped()
-            .blur(radius: 50)
-        }
-        .ignoresSafeArea()
+        BlurredCoverBackground(cover: music?.cover)
     }
 
-    /// 默认背景图
-    private var defaultBackground: some View {
-        Image("default_cover")
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-    }
 
     /// 返回按钮（左上角，透明度 0.5，对齐 uniapp `.icon-back`）
     private var backButton: some View {
