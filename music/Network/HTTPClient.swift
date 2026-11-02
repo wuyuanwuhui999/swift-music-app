@@ -1718,11 +1718,12 @@ extension HTTPClient {
     /// 根据分类 id 获取歌手列表（分页）
     /// 接口：GET /service/music/getMusicAuthorListByCategoryId?categoryId=&pageNum=&pageSize=
     /// - Parameter categoryId: 歌手分类 id，0 表示全部（首页「推荐歌手」模块用 0）
+    /// - Returns: 成功返回（歌手数组, 总条数）
     func getMusicAuthorListByCategoryId(
         categoryId: Int = 0,
         pageNum: Int = 1,
         pageSize: Int = 4,
-        completion: @escaping (Result<[MusicAuthor], NetworkError>) -> Void
+        completion: @escaping (Result<([MusicAuthor], Int), NetworkError>) -> Void
     ) {
         let parameters: [String: Any] = [
             "categoryId": categoryId,
@@ -1734,7 +1735,7 @@ extension HTTPClient {
             switch result {
             case .success(let response):
                 if response.isSuccess {
-                    completion(.success(response.data ?? []))
+                    completion(.success((response.data ?? [], response.total ?? 0)))
                 } else {
                     completion(.failure(.custom(message: response.msg ?? "获取歌手列表失败")))
                 }
@@ -1906,6 +1907,40 @@ extension HTTPClient {
                     completion(.success((response.data ?? [], response.total ?? 0)))
                 } else {
                     completion(.failure(.custom(message: response.msg ?? "获取关注的歌手失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 关注歌手
+    /// 接口：POST /service/music/insertFavoriteAuthor/{authorId}
+    func insertFavoriteAuthor(authorId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .insertFavoriteAuthor(authorId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? 0))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "关注失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 歌手分类列表（华语 / 华语男歌手 / 欧美组合 …）
+    /// 接口：GET /service/music/getMusicAuthorCategory
+    func getMusicAuthorCategory(completion: @escaping (Result<[MusicAuthorCategory], NetworkError>) -> Void) {
+        request(endpoint: .getMusicAuthorCategory) { (result: Result<BaseResponse<[MusicAuthorCategory]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? []))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取歌手分类失败")))
                 }
             case .failure(let error):
                 completion(.failure(error))

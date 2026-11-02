@@ -71,6 +71,8 @@ enum APIEndpoint {
     case getMusicLike
     case getMusicRecord
     case getFavoriteAuthor
+    case getMusicAuthorCategory
+    case insertFavoriteAuthor(Int)
     case deleteFavoriteAuthor(Int)
     case getFavoriteDirectory
     case insertFavoriteDirectory
@@ -199,6 +201,11 @@ enum APIEndpoint {
             return Constants.API.getMusicRecord
         case .getFavoriteAuthor:
             return Constants.API.getFavoriteAuthor
+        case .getMusicAuthorCategory:
+            return Constants.API.getMusicAuthorCategory
+        case .insertFavoriteAuthor(let authorId):
+            return Constants.API.insertFavoriteAuthor
+                .replacingOccurrences(of: "{authorId}", with: String(authorId))
         case .deleteFavoriteAuthor(let authorId):
             return Constants.API.deleteFavoriteAuthor
                 .replacingOccurrences(of: "{authorId}", with: String(authorId))
@@ -214,9 +221,9 @@ enum APIEndpoint {
     
     var method: String {
         switch self {
-        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory:
+        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory,.insertFavoriteAuthor:
             return "POST"
-        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getFavoriteDirectory:
+        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getMusicAuthorCategory,.getFavoriteDirectory:
             return "GET"
         case .deleteDoc,.deletePrompt,.deleteModel,.deleteMusicLike,.deleteLike,.deleteFavoriteAuthor,.deleteFavoriteDirectory:
             return "DELETE"

@@ -132,6 +132,9 @@ struct MusicHomePage: View {
             case .categoryList:
                 // 歌曲分类页
                 MusicCategoryPage()
+            case .authorCategory:
+                // 歌手分类页
+                MusicAuthorCategoryPage()
             default:
                 PlaceholderDetailPage(title: route.title)
             }

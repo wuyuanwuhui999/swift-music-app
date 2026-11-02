@@ -70,7 +70,7 @@ struct MusicSingerCard: View {
         ) { result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let list):
+                case .success(let (list, _)):
                     authors = list
                 case .failure(let error):
                     print("❌ 获取推荐歌手失败: \(error.localizedDescription)")
