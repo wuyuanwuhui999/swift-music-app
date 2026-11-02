@@ -16,54 +16,15 @@ struct PlaceholderDetailPage: View {
     /// 页面标题
     let title: String
 
-    @Environment(\.dismiss) private var dismiss
-
     var body: some View {
         VStack(spacing: 0) {
-            // 自定义导航栏
-            customNavigationBar
+            // 公共导航栏（返回 + 居中标题）
+            MusicNavBar(title: title)
 
             // 内容区（统一占位样式）
             PlaceholderPage(title: title)
         }
         .background(Colors.pageBackgroundColor)
-    }
-
-    /// 自定义导航栏（返回 + 标题 + 占位，保证标题居中）
-    private var customNavigationBar: some View {
-        HStack {
-            Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: Dimens.middleIcon))
-                    .foregroundColor(Colors.grayColor)
-            }
-            .buttonStyle(.plain)
-
-            Spacer()
-
-            Text(title)
-                .font(.system(size: Dimens.middleFont))
-                .foregroundColor(Colors.blackColor)
-
-            Spacer()
-
-            // 占位按钮，保持标题居中
-            Button(action: {}) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: Dimens.middleIcon))
-                    .foregroundColor(.clear)
-            }
-            .disabled(true)
-        }
-        .padding(.horizontal, Dimens.middleMargin)
-        .padding(.vertical, Dimens.middleMargin)
-        .background(Colors.whiteColor)
-        .overlay(
-            Rectangle()
-                .fill(Colors.grayColor.opacity(0.3))
-                .frame(height: 1),
-            alignment: .bottom
-        )
     }
 }
 

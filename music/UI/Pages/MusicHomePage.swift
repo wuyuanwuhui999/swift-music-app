@@ -7,18 +7,33 @@
 
 import SwiftUI
 
-/// 首页可跳转的页面（除播放页外，其余先用占位页代替）
-enum MusicDetailRoute: String, Identifiable {
+/// 首页可跳转的页面（除播放页 / 分类歌曲列表页外，其余先用占位页代替）
+///
+/// 「分类歌曲列表」需要携带被点击的模块，所以用关联值传参，
+/// 避免依赖「先设置另一个 @State 再设置 route」这种跨状态时序（fullScreenCover 里读到旧值会拿到 nil）。
+enum MusicDetailRoute: Identifiable {
     case search          // 搜索页
     case authorCategory  // 歌手分类
     case categoryList    // 分类歌曲
-    case classifyList    // 榜单歌曲列表
+    case classifyList(MusicCategory)   // 榜单歌曲列表（携带模块）
     case authorList      // 歌手歌曲列表
     case chat            // AI 聊天
     case user            // 个人中心
     case player          // 音乐播放页
 
-    var id: String { rawValue }
+    /// 唯一标识
+    var id: String {
+        switch self {
+        case .search: return "search"
+        case .authorCategory: return "authorCategory"
+        case .categoryList: return "categoryList"
+        case .classifyList(let category): return "classifyList-\(category.id)"
+        case .authorList: return "authorList"
+        case .chat: return "chat"
+        case .user: return "user"
+        case .player: return "player"
+        }
+    }
 
     /// 导航栏标题
     var title: String {
@@ -102,9 +117,13 @@ struct MusicHomePage: View {
         }
         .onAppear(perform: loadData)
         .fullScreenCover(item: $route) { route in
-            if route == .player {
+            switch route {
+            case .player:
                 MusicPlayerPage()
-            } else {
+            case .classifyList(let category):
+                // 分类歌曲列表页（模块由 route 直接带过来）
+                MusicClassifyListPage(category: category)
+            default:
                 PlaceholderDetailPage(title: route.title)
             }
         }
@@ -134,7 +153,7 @@ struct MusicHomePage: View {
         } else {
             MusicModuleCard(
                 category: category,
-                onMore: { route = .classifyList },
+                onMore: { route = .classifyList(category) },
                 onPlayMusic: { route = .player }
             )
         }

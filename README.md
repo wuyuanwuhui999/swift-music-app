@@ -70,7 +70,8 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（分页 + 下拉刷新）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab：动态流 + 点赞 / 评论 / 二级回复
 │   │   ├── MusicUserPage.swift            # 我的 Tab：用户信息 + 收藏夹 + 喜欢 + 关注歌手 + 播放记录
-│   │   └── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
+│   │   ├── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
+│   │   ├── MusicClassifyListPage.swift    # 分类歌曲列表页（首页模块「更多」进入）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -87,6 +88,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── CircleCommentRow.swift         # 音乐圈评论行（递归渲染二级回复）
 │   │   ├── MusicSectionHeader.swift        # 模块标题栏（折叠箭头 + 标题 + 右侧操作）
 │   │   ├── MusicUserListRow.swift          # 「我的」页通用列表行
+│   │   ├── MusicNavBar.swift               # 二级页面通用导航栏（返回 + 居中标题）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -212,6 +214,22 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 
+### 分类歌曲列表页（MusicClassifyListPage）实现要点
+
+首页任意模块标题栏点「更多」进入，展示该模块（榜单 / 分类）下的全部歌曲。
+
+| 能力 | 说明 |
+|------|------|
+| 导航栏 | `MusicNavBar`（返回 + 模块名称居中），模块名称取 `category.category` |
+| 列表 | 复用 `MusicSongRow`：封面 + 「歌手 - 歌名」+ 播放状态 + 喜欢 + 菜单，行间分割线 |
+| 分页 | 每页 20 条，滚动到底加载下一页，到底显示「已经到底了」；支持下拉刷新 |
+| 点歌 | 切歌立即播放；若当前播放列表不属于本模块，拉整张列表（500 条）作为播放列表后进播放页 |
+| 喜欢 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
+
+> 注意 `MusicDetailRoute.classifyList` 是**带关联值的 case**（`classifyList(MusicCategory)`）：
+> 之前用「额外 @State 存模块 + route 只记类型」的写法时，`fullScreenCover` 内容闭包读到的是旧值（nil），
+> 会退化成占位页；改成由 route 直接携带数据后修复。
+
 ### 首页（MusicHomePage）实现要点
 
 | 能力 | 说明 | 对应的 uniapp / flutter |
@@ -298,7 +316,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页（搜索、歌手分类、榜单列表、歌手歌曲列表、歌词页、评论/收藏夹/分享等） | ⏳ 待开发 |
+| 六 | 二级跳转页：分类歌曲列表页已完成；搜索、歌手分类、歌手歌曲列表、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。
