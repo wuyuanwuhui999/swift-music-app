@@ -16,7 +16,7 @@ enum MusicDetailRoute: Identifiable {
     case authorCategory  // 歌手分类
     case categoryList    // 分类歌曲
     case classifyList(MusicCategory)   // 榜单歌曲列表（携带模块）
-    case authorList      // 歌手歌曲列表
+    case authorList(MusicAuthor)   // 歌手歌曲列表（携带歌手）
     case chat            // AI 聊天
     case user            // 个人中心
     case player          // 音乐播放页
@@ -126,6 +126,9 @@ struct MusicHomePage: View {
             case .classifyList(let category):
                 // 分类歌曲列表页（模块由 route 直接带过来）
                 MusicClassifyListPage(category: category)
+            case .authorList(let author):
+                // 歌手歌曲列表页（歌手由 route 直接带过来）
+                MusicAuthorListPage(author: author)
             default:
                 PlaceholderDetailPage(title: route.title)
             }
@@ -151,7 +154,7 @@ struct MusicHomePage: View {
             MusicSingerCard(
                 category: category,
                 onMore: { route = .authorCategory },
-                onAuthorTap: { _ in route = .authorList }
+                onAuthorTap: { author in route = .authorList(author) }
             )
         } else {
             MusicModuleCard(

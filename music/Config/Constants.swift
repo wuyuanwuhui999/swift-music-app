@@ -117,6 +117,7 @@ struct Constants {
         static let getMusicListByCategoryId = "/service/music/getMusicListByCategoryId"
         static let getMusicAuthorListByCategoryId = "/service/music/getMusicAuthorListByCategoryId"
         static let searchMusic = "/service/music/searchMusic"
+        static let getMusicListByAuthorId = "/service/music/getMusicListByAuthorId"
         static let insertMusicLike = "/service/music/insertMusicLike/{musicId}"
         static let deleteMusicLike = "/service/music/deleteMusicLike/{musicId}"
 

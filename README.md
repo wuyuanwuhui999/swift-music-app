@@ -73,6 +73,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   │   ├── MusicClassifyListPage.swift    # 分类歌曲列表页（首页模块「更多」进入）
 │   │   ├── MusicSearchPage.swift          # 搜索页：搜索栏 + 历史搜索 + 结果列表
+│   │   ├── MusicAuthorListPage.swift      # 歌手歌曲列表页（某位歌手的全部歌曲）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -216,6 +217,24 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 
+### 歌手歌曲列表页（MusicAuthorListPage）实现要点
+
+入口：首页「推荐歌手」点某位歌手、我关注的歌手里点播放图标。
+
+| 能力 | 说明 |
+|------|------|
+| 导航栏 | `MusicNavBar`，标题为歌手名称（`authorName`） |
+| 列表 | 复用 `MusicSongRow`：封面 + 「歌手 - 歌名」+ 播放状态 + 喜欢 + 菜单，行间分割线 |
+| 分页 | 每页 20 条，滚动到底加载下一页，到底显示「已经到底了」；支持下拉刷新 |
+| 点歌 | 切歌立即播放；若当前播放列表不属于本歌手，拉整张列表（500 条）作为播放列表后进播放页 |
+| 喜欢 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
+
+- 接口：`GET /service/music/getMusicListByAuthorId?authorId=&pageNum=&pageSize=`（作者 id 用 `authorId`，为空时兜底主键 `id`）。
+- `MusicDetailRoute.authorList` 同样是带关联值的 case（`authorList(MusicAuthor)`）；「我的」页用 `authorRoute: MusicAuthor?`
+  作为独立 `fullScreenCover` 的 item 承载歌手，同样是「数据跟着 item 走」的写法。
+- 注意：flutter 的 `MusicAuthorListPage` 实际是**某位歌手的歌曲列表**；「歌手分类」（男歌手 / 女歌手 / 组合…）是另一个页面
+  （uniapp `MusicAuthorCategoryPage.vue`），目前仍是占位页。
+
 ### 搜索页（MusicSearchPage）实现要点
 
 首页点搜索框进入，首页的推荐关键词（`getKeywordMusic`）作为输入框提示语。
@@ -335,7 +354,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页、搜索页已完成；歌手分类、歌手歌曲列表、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页已完成；歌手分类、歌词页、评论/收藏夹/分享等 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。

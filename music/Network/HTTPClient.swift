@@ -1815,6 +1815,35 @@ extension HTTPClient {
         }
     }
 
+    /// 获取某个歌手的歌曲列表
+    /// 接口：GET /service/music/getMusicListByAuthorId?authorId=&pageNum=&pageSize=
+    /// - Parameter authorId: 歌手 id（不是歌手表主键 id）
+    func getMusicListByAuthorId(
+        authorId: Int,
+        pageNum: Int = 1,
+        pageSize: Int = Constants.MusicConfig.pageSize,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "authorId": authorId,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getMusicListByAuthorId, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取歌手歌曲失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
     /// 我喜欢的歌曲
     /// 接口：GET /service/music/getMusicLike?pageNum=&pageSize=
     func getMusicLike(

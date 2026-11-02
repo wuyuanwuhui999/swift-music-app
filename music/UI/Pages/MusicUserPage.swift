@@ -82,6 +82,8 @@ struct MusicUserPage: View {
     @State private var route: MusicUserRoute?
     /// 是否展示播放页
     @State private var showPlayerPage = false
+    /// 要打开的歌手歌曲页（歌手作为 item 直接传入）
+    @State private var authorRoute: MusicAuthor?
     @State private var showCreateDirectory = false
     @State private var newDirectoryName = ""
     @State private var deleteTarget: DeleteTarget?
@@ -112,6 +114,9 @@ struct MusicUserPage: View {
         }
         .fullScreenCover(isPresented: $showPlayerPage) {
             MusicPlayerPage()
+        }
+        .fullScreenCover(item: $authorRoute) { author in
+            MusicAuthorListPage(author: author)
         }
         .alert("提示", isPresented: Binding(
             get: { alertMessage != nil },
@@ -299,7 +304,7 @@ struct MusicUserPage: View {
                             fallbackText: author.avatarPlaceholderText,
                             title: author.authorName,
                             subtitle: author.total.map { "\($0)首" },
-                            onPlay: { route = .favoriteAuthor },
+                            onPlay: { authorRoute = author },
                             onMenu: {},
                             onLongPress: {
                                 deleteTarget = DeleteTarget(
