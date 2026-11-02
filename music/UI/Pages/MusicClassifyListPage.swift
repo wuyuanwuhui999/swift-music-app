@@ -90,30 +90,14 @@ struct MusicClassifyListPage: View {
 
     // MARK: - 视图组件
 
-    /// 歌曲列表（行之间画分割线，最后一行不画）
+    /// 歌曲列表（复用通用列表卡片）
     private var musicList: some View {
-        VStack(spacing: Dimens.middleMargin) {
-            ForEach(Array(musics.enumerated()), id: \.element.id) { index, music in
-                VStack(spacing: Dimens.middleMargin) {
-                    MusicSongRow(
-                        music: music,
-                        classifyName: category.category,
-                        onPlay: { play(music) },
-                        onLike: { toggleLike(at: index) },
-                        onMenu: {}
-                    )
-
-                    if index < musics.count - 1 {
-                        Rectangle()
-                            .fill(Colors.grayColor)
-                            .frame(height: 1)
-                    }
-                }
-            }
-        }
-        .padding(Dimens.middleMargin)
-        .background(Colors.whiteColor)
-        .cornerRadius(Dimens.borderRadius)
+        MusicSongListCard(
+            musics: musics,
+            classifyName: category.category,
+            onPlay: { play($0) },
+            onLike: { toggleLike(at: $0) }
+        )
     }
 
     /// 空态 / 加载态

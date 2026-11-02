@@ -182,30 +182,14 @@ struct MusicSearchPage: View {
 
     // MARK: - 搜索结果
 
-    /// 结果列表
+    /// 结果列表（复用通用列表卡片）
     private var resultCard: some View {
-        VStack(spacing: Dimens.middleMargin) {
-            ForEach(Array(musics.enumerated()), id: \.element.id) { index, music in
-                VStack(spacing: Dimens.middleMargin) {
-                    MusicSongRow(
-                        music: music,
-                        classifyName: Constants.MusicConfig.searchClassifyName,
-                        onPlay: { play(music) },
-                        onLike: { toggleLike(at: index) },
-                        onMenu: {}
-                    )
-
-                    if index < musics.count - 1 {
-                        Rectangle()
-                            .fill(Colors.grayColor)
-                            .frame(height: 1)
-                    }
-                }
-            }
-        }
-        .padding(Dimens.middleMargin)
-        .background(Colors.whiteColor)
-        .cornerRadius(Dimens.borderRadius)
+        MusicSongListCard(
+            musics: musics,
+            classifyName: Constants.MusicConfig.searchClassifyName,
+            onPlay: { play($0) },
+            onLike: { toggleLike(at: $0) }
+        )
     }
 
     /// 加载中

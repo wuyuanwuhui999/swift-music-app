@@ -129,6 +129,9 @@ struct MusicHomePage: View {
             case .authorList(let author):
                 // 歌手歌曲列表页（歌手由 route 直接带过来）
                 MusicAuthorListPage(author: author)
+            case .categoryList:
+                // 歌曲分类页
+                MusicCategoryPage()
             default:
                 PlaceholderDetailPage(title: route.title)
             }
