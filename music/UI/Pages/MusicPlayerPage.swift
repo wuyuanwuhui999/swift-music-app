@@ -132,8 +132,6 @@ struct MusicPlayerPage: View {
             case .share:
                 // 分享到音乐圈：带上当前播放的歌曲
                 MusicSharePage(music: playerState.currentMusic)
-            default:
-                PlaceholderDetailPage(title: route.title)
             }
         }
         .alert("提示", isPresented: Binding(

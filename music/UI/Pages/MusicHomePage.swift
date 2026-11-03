@@ -138,8 +138,9 @@ struct MusicHomePage: View {
             case .chat:
                 // AI 助手
                 ChatPage()
-            default:
-                PlaceholderDetailPage(title: route.title)
+            case .user:
+                // 个人信息（首页搜索栏头像，对齐 uniapp 的 UserPage）
+                EditUserInfoPage()
             }
         }
     }
