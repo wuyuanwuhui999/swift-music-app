@@ -65,6 +65,8 @@ enum APIEndpoint {
     case saveLike
     case deleteLike
     case insertComment
+    case getCommentCount
+    case getTopCommentList
     case insertCircle
 
     // MARK: - 我的页面
@@ -76,6 +78,8 @@ enum APIEndpoint {
     case deleteFavoriteAuthor(Int)
     case getFavoriteDirectory
     case insertFavoriteDirectory
+    case isMusicFavorite(Int)
+    case insertMusicFavorite(Int)
     case deleteFavoriteDirectory(Int)
     
     var path: String {
@@ -193,6 +197,10 @@ enum APIEndpoint {
             return Constants.API.deleteLike
         case .insertComment:
             return Constants.API.insertComment
+        case .getCommentCount:
+            return Constants.API.getCommentCount
+        case .getTopCommentList:
+            return Constants.API.getTopCommentList
         case .insertCircle:
             return Constants.API.insertCircle
         case .getMusicLike:
@@ -213,6 +221,12 @@ enum APIEndpoint {
             return Constants.API.getFavoriteDirectory
         case .insertFavoriteDirectory:
             return Constants.API.insertFavoriteDirectory
+        case .isMusicFavorite(let musicId):
+            return Constants.API.isMusicFavorite
+                .replacingOccurrences(of: "{musicId}", with: String(musicId))
+        case .insertMusicFavorite(let musicId):
+            return Constants.API.insertMusicFavorite
+                .replacingOccurrences(of: "{musicId}", with: String(musicId))
         case .deleteFavoriteDirectory(let favoriteId):
             return Constants.API.deleteFavoriteDirectory
                 .replacingOccurrences(of: "{favoriteId}", with: String(favoriteId))
@@ -221,9 +235,9 @@ enum APIEndpoint {
     
     var method: String {
         switch self {
-        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory,.insertFavoriteAuthor:
+        case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory,.insertFavoriteAuthor,.insertMusicFavorite:
             return "POST"
-        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getMusicAuthorCategory,.getFavoriteDirectory:
+        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getMusicAuthorCategory,.getFavoriteDirectory,.getCommentCount,.getTopCommentList,.isMusicFavorite:
             return "GET"
         case .deleteDoc,.deletePrompt,.deleteModel,.deleteMusicLike,.deleteLike,.deleteFavoriteAuthor,.deleteFavoriteDirectory:
             return "DELETE"

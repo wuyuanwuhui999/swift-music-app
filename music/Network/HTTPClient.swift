@@ -1965,6 +1965,106 @@ extension HTTPClient {
         }
     }
 
+    /// 评论总数
+    /// 接口：GET /service/social/getCommentCount?relationId=&type=
+    func getCommentCount(
+        relationId: Int,
+        type: String = Constants.CircleConfig.musicType,
+        completion: @escaping (Result<Int, NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = ["relationId": relationId, "type": type]
+
+        request(endpoint: .getCommentCount, parameters: parameters) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? 0))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取评论数失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 一级评论列表（含二级回复在 `replyList` 里）
+    /// 接口：GET /service/social/getTopCommentList?relationId=&type=&pageNum=&pageSize=
+    func getTopCommentList(
+        relationId: Int,
+        type: String = Constants.CircleConfig.musicType,
+        pageNum: Int = 1,
+        pageSize: Int = Constants.CircleConfig.pageSize,
+        completion: @escaping (Result<([CircleComment], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "relationId": relationId,
+            "type": type,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getTopCommentList, parameters: parameters) { (result: Result<BaseResponse<[CircleComment]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取评论失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 查询音乐是否已在收藏夹里（1 = 已收藏）
+    /// 接口：GET /service/music/isMusicFavorite/{musicId}
+    func isMusicFavorite(musicId: Int, completion: @escaping (Result<Int, NetworkError>) -> Void) {
+        request(endpoint: .isMusicFavorite(musicId)) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? 0))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "查询收藏状态失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// 把音乐加入 / 移出收藏夹
+    /// 接口：POST /service/music/insertMusicFavorite/{musicId}
+    /// - Parameter favoriteIds: 勾选的收藏夹 id；传空数组表示取消收藏
+    /// - Returns: 影响行数
+    /// - Note: 后端 body 直接是 int 数组（`[21, 22]`），注意不是 `[{favoriteId: 21}]`
+    ///   —— uniapp 旧客户端传对象数组，会被后端 422 拒绝，这里按接口文档修正。
+    func insertMusicFavorite(
+        musicId: Int,
+        favoriteIds: [Int],
+        completion: @escaping (Result<Int, NetworkError>) -> Void
+    ) {
+        guard let data = try? JSONSerialization.data(withJSONObject: favoriteIds) else {
+            completion(.failure(.custom(message: "参数序列化失败")))
+            return
+        }
+
+        request(endpoint: .insertMusicFavorite(musicId), customBody: data) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success(response.data ?? 0))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "收藏失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
     /// 我的收藏夹列表
     /// 接口：GET /service/music/getFavoriteDirectory?musicId=
     /// - Parameter musicId: 后端必填，用于标记「当前歌曲是否已在该收藏夹」；

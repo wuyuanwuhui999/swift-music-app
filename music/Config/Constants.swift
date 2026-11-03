@@ -138,6 +138,8 @@ struct Constants {
         static let getFavoriteAuthor = "/service/music/getFavoriteAuthor"
         static let deleteFavoriteAuthor = "/service/music/deleteFavoriteAuthor/{authorId}"
         static let getFavoriteDirectory = "/service/music/getFavoriteDirectory"
+        static let isMusicFavorite = "/service/music/isMusicFavorite/{musicId}"
+        static let insertMusicFavorite = "/service/music/insertMusicFavorite/{musicId}"
         static let insertFavoriteDirectory = "/service/music/insertFavoriteDirectory"
         static let deleteFavoriteDirectory = "/service/music/deleteFavoriteDirectory/{favoriteId}"
 
@@ -146,6 +148,8 @@ struct Constants {
         static let saveLike = "/service/social/saveLike"
         static let deleteLike = "/service/social/deleteLike"
         static let insertComment = "/service/social/insertComment"
+        static let getCommentCount = "/service/social/getCommentCount"
+        static let getTopCommentList = "/service/social/getTopCommentList"
         static let insertCircle = "/service/circle/insertCircle"
     }
 }

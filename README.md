@@ -99,6 +99,8 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── BlurredCoverBackground.swift    # 全屏模糊封面背景（播放页 / 歌词页共用）
 │   │   ├── MusicSongListCard.swift        # 歌曲列表卡片（分类/歌手/搜索/歌曲分类页共用）
 │   │   ├── MusicAuthorRow.swift           # 歌手列表行（头像 + 名称 + N首 + 播放/关注/菜单）
+│   │   ├── CommentDialogView.swift        # 播放页评论弹窗（列表 + 回复 + 发送）
+│   │   ├── FavoriteDirectoryDialogView.swift # 播放页收藏夹弹窗（新建 + 勾选 + 提交）
 │   │   ├── MusicCoverView.swift           # 圆形封面 / 歌手头像
 │   │   ├── MusicPlayerDisc.swift          # 播放页旋转唱片
 │   │   ├── LyricScrollView.swift          # 播放页同步歌词
@@ -223,6 +225,36 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 - 收藏夹接口 `getFavoriteDirectory?musicId=` 的 `musicId` 是**必填**（后端用于标记当前歌曲是否已收藏），
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
+
+### 播放页评论 / 收藏夹弹窗实现要点
+
+播放页操作栏的「评论」「收藏夹」两个按钮改为底部 sheet 弹窗（`.sheet` + `.presentationDetents([.medium, .large])`）。
+
+**评论弹窗（`CommentDialogView`）**
+
+| 能力 | 说明 |
+|------|------|
+| 标题 | 「评论」+ 总数，右上角关闭 |
+| 列表 | 复用 `CircleCommentRow`：一级评论 + 递归二级回复（`昵称▶被回复人`）、相对时间 |
+| 回复 | 点评论内容进入回复态，输入框提示「回复 昵称」，提交时带上 `topId` / `parentId` |
+| 发送 | `POST /service/social/insertComment`，服务端业务报错时同样本地插入（后端 data 恒为 null） |
+| 分页 | 每页 10 条，滚动到底加载更多，到底显示「已经到底了」 |
+| 接口 | `getTopCommentList`（列表 + 总数）、`getCommentCount`、`insertComment` |
+
+**收藏夹弹窗（`FavoriteDirectoryDialogView`）**
+
+| 能力 | 说明 |
+|------|------|
+| 新建 | 顶部「+ 新建收藏夹」→ 输入名称 → `insertFavoriteDirectory`，成功刷新列表 |
+| 列表 | 收藏夹封面/首字 + 名称 + 「N首」+ 圆形勾选框；默认勾选状态取后端 `checked` |
+| 提交 | 按钮文案：已收藏且没勾选 →「取消收藏」，有勾选 →「添加（已选N个）」，否则「添加」 |
+| 接口 | `getFavoriteDirectory?musicId=`、`isMusicFavorite/{musicId}`、`insertMusicFavorite/{musicId}` |
+
+> ⚠️ 接口差异：`insertMusicFavorite` 的 body 是**纯 int 数组** `[21, 22]`（表示收藏夹 id 列表，传 `[]` 表示取消收藏），
+> 不是 uniapp 旧客户端的 `[{"favoriteId": 21}]`（后端会返回 422）。客户端已按接口文档修正。
+>
+> 播放页星标图标根据 `isMusicFavorite` 切换 `icon_favorite` / `icon_full_star`，进页面和切歌时都会刷新，
+> 在收藏夹弹窗里提交后通过回调即时更新。
 
 ### 歌手分类页（MusicAuthorCategoryPage）实现要点
 
@@ -428,7 +460,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页、歌词全屏页、歌曲分类页、歌手分类页已完成；选歌页、评论/收藏夹等 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页、歌词全屏页、歌曲分类页、歌手分类页、播放页评论/收藏夹弹窗已完成；选歌页 | 🚧 部分完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。

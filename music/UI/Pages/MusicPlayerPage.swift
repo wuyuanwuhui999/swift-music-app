@@ -11,8 +11,6 @@ import SwiftUI
 enum MusicPlayerRoute: String, Identifiable {
     case lyric     // 歌词页
     case share     // 分享到音乐圈
-    case comment   // 评论
-    case favorite  // 收藏夹
 
     var id: String { rawValue }
 
@@ -20,8 +18,6 @@ enum MusicPlayerRoute: String, Identifiable {
         switch self {
         case .lyric: return "歌词"
         case .share: return "分享到音乐圈"
-        case .comment: return "评论"
-        case .favorite: return "收藏夹"
         }
     }
 }
@@ -48,6 +44,12 @@ struct MusicPlayerPage: View {
     @State private var dragValue: Double = 0
     /// 轻提示
     @State private var alertMessage: String?
+    /// 评论弹窗
+    @State private var showCommentDialog = false
+    /// 收藏夹弹窗
+    @State private var showFavoriteDialog = false
+    /// 当前歌曲是否在某个收藏夹里（星标状态）
+    @State private var isFavorite = false
 
     /// 当前歌曲
     private var music: Music? { playerState.currentMusic }
@@ -104,6 +106,23 @@ struct MusicPlayerPage: View {
             if !playerState.isPlaying {
                 playerState.play()
             }
+            loadFavoriteState()
+        }
+        .onChange(of: music?.id) { _, _ in
+            // 切歌后刷新星标状态
+            loadFavoriteState()
+        }
+        .sheet(isPresented: $showCommentDialog) {
+            CommentDialogView(relationId: music?.id ?? 0, type: Constants.CircleConfig.musicType)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showFavoriteDialog) {
+            FavoriteDirectoryDialogView(musicId: music?.id ?? 0) { favorite in
+                isFavorite = favorite
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .fullScreenCover(item: $route) { route in
             switch route {
@@ -137,6 +156,21 @@ struct MusicPlayerPage: View {
 
 
     /// 返回按钮（左上角，透明度 0.5，对齐 uniapp `.icon-back`）
+    /// 查询当前歌曲是否已在收藏夹（星标状态）
+    private func loadFavoriteState() {
+        guard let musicId = music?.id else {
+            isFavorite = false
+            return
+        }
+        HTTPClient.shared.isMusicFavorite(musicId: musicId) { result in
+            DispatchQueue.main.async {
+                if case .success(let value) = result {
+                    isFavorite = value == 1
+                }
+            }
+        }
+    }
+
     private var backButton: some View {
         VStack {
             HStack {
@@ -183,7 +217,7 @@ struct MusicPlayerPage: View {
             Spacer()
 
             // 评论
-            Button(action: { route = .comment }) {
+            Button(action: { showCommentDialog = true }) {
                 Image("icon_music_comments")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -193,9 +227,9 @@ struct MusicPlayerPage: View {
 
             Spacer()
 
-            // 收藏夹（是否已收藏待接 isMusicFavorite 接口）
-            Button(action: { route = .favorite }) {
-                Image("icon_favorite")
+            // 收藏夹（星标反映当前歌曲是否已在收藏夹）
+            Button(action: { showFavoriteDialog = true }) {
+                Image(isFavorite ? "icon_full_star" : "icon_favorite")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: Dimens.middleIcon, height: Dimens.middleIcon)
