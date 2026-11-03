@@ -489,7 +489,8 @@ xcodebuild -project music.xcodeproj -scheme music \
   -configuration Debug build CODE_SIGNING_ALLOWED=NO
 ```
 
-> 登录密码在客户端先做 MD5 再提交（`password.md5`），与后端口径一致，测试账号：`吴时吴刻` / `123456`。
+> 登录密码在客户端先做 MD5 再提交（`password.md5`），与后端口径一致；
+> 测试账号请自行在本地后端注册，仓库里不保留任何账号与密码。
 
 ## 开发进度
 
