@@ -12,9 +12,9 @@ struct LoginPage: View {
     @State private var selectedTab = 0 // 0: 账号密码登录, 1: 邮箱验证码登录
     @State private var navigateToHomePage = false
     
-    // 账号密码登录相关
-    @State private var account = "吴时吴刻"
-    @State private var password = "123456"
+    // 账号密码登录相关（不要预填任何真实账号密码）
+    @State private var account = ""
+    @State private var password = ""
     @State private var isLoggingIn = false
     
     // 邮箱验证码登录相关

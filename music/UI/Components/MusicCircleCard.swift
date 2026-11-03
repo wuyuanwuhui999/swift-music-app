@@ -199,7 +199,7 @@ struct MusicCircleCard: View {
     MusicCircleCard(
         circle: {
             let json = """
-            {"id":87,"content":"分享一首好歌","username":"吴时吴刻","useravater":null,
+            {"id":87,"content":"分享一首好歌","username":"用户昵称","useravater":null,
              "createTime":"2026-10-09 20:40:50","type":"MUSIC",
              "musicSongName":"笑傲江湖","musicAuthorName":"刘欢、王菲","musicCover":null,
              "circleLikes":[{"id":1,"userId":"u1","username":"小明"}],
