@@ -59,8 +59,8 @@ xcrun simctl launch booted wuwenqiang.music
 xcrun simctl io booted screenshot /tmp/shot.png
 ```
 
-- 登录：后端 `/service/user/login` 的 `password` 规则是 **MD5 后的 32 位小写**
-  （例如明文 `123456` → `e10adc3949ba59abbe56e057f20f883e`）。测试账号请自建，**不要把账号密码提交进仓库**。
+- 登录：`/service/user/login` 的 `password` 字段要传**明文密码的 MD5（32 位小写）**，客户端不要传明文。
+  测试账号请自行在本地后端注册，**任何账号、密码、token 都不要提交进仓库**（本仓库历史里也没有）。
 - 后端地址、WebSocket 地址都在 `music/Config/Constants.swift` 顶部：
   `baseURL` / `webSocketURL`，换环境只改这两行。
 
