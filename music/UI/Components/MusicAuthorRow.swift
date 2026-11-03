@@ -20,6 +20,15 @@ struct MusicAuthorRow: View {
     let onLike: () -> Void
     /// 点更多菜单
     var onMenu: () -> Void = {}
+    /// 关注状态覆盖（「我关注的歌手」列表强制为已关注）
+    var isFollowedOverride: Bool? = nil
+    /// 是否展示「N首」副标题（该接口不返回 total 时传 false）
+    var showsTotal: Bool = true
+
+    /// 是否已关注
+    private var isFollowed: Bool {
+        isFollowedOverride ?? ((author.isLike ?? 0) == 1)
+    }
 
     var body: some View {
         HStack(spacing: Dimens.middleMargin) {
@@ -31,10 +40,12 @@ struct MusicAuthorRow: View {
                     .foregroundColor(Colors.blackColor)
                     .lineLimit(1)
 
-                Text("\(author.total ?? 0)首")
-                    .font(.system(size: Dimens.normalFont))
-                    .fontWeight(.bold)
-                    .foregroundColor(Colors.grayColor)
+                if showsTotal {
+                    Text("\(author.total ?? 0)首")
+                        .font(.system(size: Dimens.normalFont))
+                        .fontWeight(.bold)
+                        .foregroundColor(Colors.grayColor)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -49,7 +60,7 @@ struct MusicAuthorRow: View {
 
             // 关注 / 取消关注
             Button(action: onLike) {
-                Image((author.isLike ?? 0) == 1 ? "icon_like_active" : "icon_like")
+                Image(isFollowed ? "icon_like_active" : "icon_like")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: Dimens.smallIcon, height: Dimens.smallIcon)

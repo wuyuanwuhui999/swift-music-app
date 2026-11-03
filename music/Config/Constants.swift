@@ -53,6 +53,17 @@ struct Constants {
     }
 
     /// 音乐圈 / 社交模块通用配置（对齐 uniapp `common/enum.ts` 的 CircleEnum / CommentEnum）
+    struct ChatConfig {
+        /// AI 助手使用的公司 id（与 uniapp 音乐 App 的 COMPANY_ID 保持一致，用于拉模型列表）
+        static let companyId = "99e1428abccb11f1a63efea5404fce1b"
+        /// 对话语言
+        static let language = "中文"
+        /// 是否展示思考过程
+        static let showThink = true
+        /// 语音 / 文字输入框高度
+        static let inputHeight = Dimens.inputHeight
+    }
+
     struct CircleConfig {
         /// 音乐圈动态类型（查询动态列表用）
         static let musicType = "MUSIC"
@@ -138,6 +149,7 @@ struct Constants {
         static let getFavoriteAuthor = "/service/music/getFavoriteAuthor"
         static let deleteFavoriteAuthor = "/service/music/deleteFavoriteAuthor/{authorId}"
         static let getFavoriteDirectory = "/service/music/getFavoriteDirectory"
+        static let getMusicListByFavoriteId = "/service/music/getMusicListByFavoriteId"
         static let isMusicFavorite = "/service/music/isMusicFavorite/{musicId}"
         static let insertMusicFavorite = "/service/music/insertMusicFavorite/{musicId}"
         static let insertFavoriteDirectory = "/service/music/insertFavoriteDirectory"

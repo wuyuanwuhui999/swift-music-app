@@ -24,8 +24,13 @@ extension Notification.Name {
 ///
 /// 接口：`POST /service/circle/insertCircle`（content、imgs、relationId、type、permission）
 struct MusicSharePage: View {
-    /// 要分享的歌曲（nil 表示还没选歌）
-    let music: Music?
+    /// 要分享的歌曲（nil 表示还没选歌，点歌曲行去选歌页挑）
+    @State private var selectedMusic: Music?
+
+    /// - Parameter music: 预填歌曲（播放页分享时带上当前歌曲）
+    init(music: Music? = nil) {
+        _selectedMusic = State(initialValue: music)
+    }
 
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var appState = AppState.shared
@@ -36,7 +41,7 @@ struct MusicSharePage: View {
     @State private var permission = Constants.CircleConfig.permissionPublic
     /// 是否正在发布
     @State private var isPublishing = false
-    /// 是否展示选歌页（当前为占位页）
+    /// 是否展示选歌页
     @State private var showChooseSong = false
     /// 是否展示可见范围选择
     @State private var showPermissionPicker = false
@@ -59,7 +64,10 @@ struct MusicSharePage: View {
         }
         .background(Colors.pageBackgroundColor)
         .fullScreenCover(isPresented: $showChooseSong) {
-            PlaceholderDetailPage(title: "选择歌曲")
+            MusicCirCleCheckPage(onSelect: { music in
+                selectedMusic = music
+                showChooseSong = false
+            })
         }
         .alert("提示", isPresented: Binding(
             get: { alertMessage != nil },
@@ -138,7 +146,7 @@ struct MusicSharePage: View {
     /// 分享的歌曲（没有歌时提示选择）
     private var songRow: some View {
         Group {
-            if let music = music {
+            if let music = selectedMusic {
                 HStack(spacing: Dimens.middleMargin) {
                     MusicCoverView(cover: music.cover, size: Dimens.musicCover)
 
@@ -169,10 +177,8 @@ struct MusicSharePage: View {
         .cornerRadius(Dimens.borderRadius)
         .contentShape(Rectangle())
         .onTapGesture {
-            // 选歌页还没开发，先跳占位页（对齐 uniapp 的 MusicCirCleCheckPage）
-            if music == nil {
-                showChooseSong = true
-            }
+            // 未选歌时提示去挑，已选歌时点一下可以换一首
+            showChooseSong = true
         }
     }
 
@@ -220,7 +226,7 @@ struct MusicSharePage: View {
         guard !isPublishing else { return }
 
         // 必须有一首歌（对齐 uniapp：relationId 取所分享歌曲的 id）
-        guard let music = music else {
+        guard let music = selectedMusic else {
             alertMessage = "请先选择要分享的歌曲"
             return
         }

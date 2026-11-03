@@ -78,6 +78,7 @@ enum APIEndpoint {
     case deleteFavoriteAuthor(Int)
     case getFavoriteDirectory
     case insertFavoriteDirectory
+    case getMusicListByFavoriteId
     case isMusicFavorite(Int)
     case insertMusicFavorite(Int)
     case deleteFavoriteDirectory(Int)
@@ -221,6 +222,8 @@ enum APIEndpoint {
             return Constants.API.getFavoriteDirectory
         case .insertFavoriteDirectory:
             return Constants.API.insertFavoriteDirectory
+        case .getMusicListByFavoriteId:
+            return Constants.API.getMusicListByFavoriteId
         case .isMusicFavorite(let musicId):
             return Constants.API.isMusicFavorite
                 .replacingOccurrences(of: "{musicId}", with: String(musicId))
@@ -237,7 +240,7 @@ enum APIEndpoint {
         switch self {
         case .login, .register, .sendEmailVertifyCode, .loginByEmail, .logout, .createDir, .uploadDoc, .updateAvater, .vertifyUser, .resetPassword, .addTenantUser,.addCompanyUser,.insertPrompt,.addModel,.insertMusicLike,.saveLike,.insertComment,.insertCircle,.insertFavoriteDirectory,.insertFavoriteAuthor,.insertMusicFavorite:
             return "POST"
-        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getMusicAuthorCategory,.getFavoriteDirectory,.getCommentCount,.getTopCommentList,.isMusicFavorite:
+        case .getUserData, .getCompanyList, .getTenantList, .getModelList, .getDirectoryList, .getDocListByDirId, .getPublicDocList, .getChatHistory, .getChatHistoryByChatId, .getPrompt, .getTenantUserList, .getCompanyUsers, .searchCompanyUsers,.searchTenantUsers,.getDepartments,.getPositions,.getPromptList,.getKeywordMusic,.getMusicCategory,.getMusicListByCategoryId,.getMusicAuthorListByCategoryId,.searchMusic,.getMusicListByAuthorId,.getCircleListByType,.getMusicLike,.getMusicRecord,.getFavoriteAuthor,.getMusicAuthorCategory,.getFavoriteDirectory,.getCommentCount,.getTopCommentList,.getMusicListByFavoriteId,.isMusicFavorite:
             return "GET"
         case .deleteDoc,.deletePrompt,.deleteModel,.deleteMusicLike,.deleteLike,.deleteFavoriteAuthor,.deleteFavoriteDirectory:
             return "DELETE"

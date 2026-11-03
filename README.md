@@ -78,6 +78,14 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicLyricPage.swift           # 歌词全屏页（模糊封面 + 大字同步歌词）
 │   │   ├── MusicCategoryPage.swift        # 歌曲分类页（分类网格 + 该分类歌曲列表）
 │   │   ├── MusicAuthorCategoryPage.swift  # 歌手分类页（歌手分类网格 + 歌手列表）
+│   │   ├── MusicCirCleCheckPage.swift     # 选歌页（发动态时搜索并挑歌）
+│   │   ├── MusicFavoriteListPage.swift    # 我喜欢的歌曲（全部）
+│   │   ├── RecordMusicPage.swift          # 播放记录（全部）
+│   │   ├── FavoriteAuthorListPage.swift   # 我关注的歌手（全部）
+│   │   ├── FavoriteMusicPage.swift        # 收藏夹详情（长按移出收藏夹）
+│   │   ├── EditUserInfoPage.swift         # 个人信息（头像/昵称/邮箱/性别/签名/改密/退出）
+│   │   ├── UpdatePasswordPage.swift       # 修改密码
+│   │   ├── ChatPage.swift                 # AI 助手（WebSocket 流式对话）
 │   ├── UI/Components/                     # 组件
 │   │   ├── AppLogo.swift                  # 应用 Logo（icon_logo）
 │   │   ├── CustomTextField.swift          # 圆角输入框
@@ -225,6 +233,35 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 - 收藏夹接口 `getFavoriteDirectory?musicId=` 的 `musicId` 是**必填**（后端用于标记当前歌曲是否已收藏），
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
+
+### 剩余二级页面实现要点
+
+这一轮把「我的」页各列表页、选歌页、个人信息、AI 助手全部补完，App 内不再有 hello world 占位页。
+
+| 页面 | 文件 | 入口 | 要点 |
+|------|------|------|------|
+| 选歌页 | `MusicCirCleCheckPage` | 发布动态页「选择歌曲」 | 搜索框 + 结果列表，点一首回填发布页（已选歌时点歌曲卡可换歌） |
+| 我喜欢的歌曲 | `MusicFavoriteListPage` | 我的页「我喜欢的歌曲 > 更多」 | 分页 + 取消喜欢后从列表移除 |
+| 播放记录 | `RecordMusicPage` | 我的页「最近播放 > 更多」 | 分页 + 「听过N次」（后端无删除接口，故不提供删除） |
+| 我关注的歌手 | `FavoriteAuthorListPage` | 我的页「我关注的歌手 > 更多」 | 分页 + 点进歌手歌曲页 + 长按/点心取消关注 |
+| 收藏夹详情 | `FavoriteMusicPage` | 我的页收藏夹行「播放」 | 分页 + 点歌播放 + **长按从收藏夹移出** |
+| 个人信息 | `EditUserInfoPage` | 我的页用户卡片「编辑」 | 头像相册上传、昵称/邮箱/签名弹窗编辑、性别选择、修改密码、退出登录 |
+| 修改密码 | `UpdatePasswordPage` | 个人信息页 | 原密码 + 新密码 + 确认，两次不一致本地拦截 |
+| AI 助手 | `ChatPage` | 首页搜索栏 AI 图标 | WebSocket 流式对话，用户/助手气泡，模型可切换 |
+
+**接口补充（本页新增）**
+
+- `getMusicListByFavoriteId`（收藏夹歌曲）
+- `getCommentCount` / `getTopCommentList`（评论数、评论列表）
+- `isMusicFavorite` / `insertMusicFavorite`（收藏状态、收藏提交）
+
+**接口差异与坑（都已按文档修正）**
+
+1. `insertMusicFavorite` 的 body 是**纯 int 数组** `[21]`；传 `[{"favoriteId":21}]` 会被后端 422（uniapp 旧客户端就是这种写法）。
+   提交语义是「先清空该歌所有收藏，再按传入的收藏夹重建」，所以「只从某个收藏夹移出」要先取其余收藏夹再提交剩余 id。
+2. `getFavoriteAuthor` 不返回 `isLike` / `total`，所以「我关注的歌手」列表强制显示已关注图标、不显示「N首」。
+3. AI 助手：只有 `type=ollama` 的模型可用，`type=online` 的模型后端会返回「不支持的模型类型 online」，
+   客户端把 ollama 模型排前面、online 作为兜底。
 
 ### 播放页评论 / 收藏夹弹窗实现要点
 
@@ -460,7 +497,7 @@ xcodebuild -project music.xcodeproj -scheme music \
 | 三 | 首页 Tab 正式内容（搜索栏 / 分类入口 / 榜单模块 / 推荐歌手 / 加载更多 / 点赞 / 点歌进播放页） | ✅ 已完成 |
 | 四 | 首页 / 推荐 / 音乐圈 / 我的 四个 Tab 正式内容 | ✅ 已完成 |
 | 五 | 音乐播放页（唱片旋转、歌词、进度、播放控制、循环模式、收藏点赞） | ✅ 已完成 |
-| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页、歌词全屏页、歌曲分类页、歌手分类页、播放页评论/收藏夹弹窗已完成；选歌页 | 🚧 部分完成 |
+| 六 | 二级跳转页：分类歌曲列表页、搜索页、歌手歌曲列表页、发布动态页、歌词全屏页、歌曲分类页、歌手分类页、播放页评论/收藏夹弹窗、选歌页、我喜欢的歌曲、播放记录、我关注的歌手、收藏夹详情、个人信息、修改密码、AI 助手 | ✅ 已完成 |
 
 > 首页里的二级页面（搜索 / 歌手分类 / 榜单列表 / 歌手歌曲 / AI 聊天 / 个人中心）当前统一用
 > `PlaceholderDetailPage` 占位，跳转链路已通；实现某个页面时把 `MusicDetailRoute` 对应分支换成真实页面即可。

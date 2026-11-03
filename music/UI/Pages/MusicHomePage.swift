@@ -135,6 +135,9 @@ struct MusicHomePage: View {
             case .authorCategory:
                 // 歌手分类页
                 MusicAuthorCategoryPage()
+            case .chat:
+                // AI 助手
+                ChatPage()
             default:
                 PlaceholderDetailPage(title: route.title)
             }

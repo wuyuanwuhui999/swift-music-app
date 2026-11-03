@@ -7,19 +7,30 @@
 
 import SwiftUI
 
-/// 「我的」页可跳转的二级页面（暂用占位页）
-enum MusicUserRoute: String, Identifiable {
-    case profile            // 用户信息（编辑资料）
-    case favoriteDirectory  // 收藏夹详情
-    case likedMusic         // 我喜欢的歌曲（全部）
-    case favoriteAuthor     // 我关注的歌手（全部）
-    case record             // 播放记录（全部）
+/// 「我的」页可跳转的二级页面
+///
+/// 注意：`favoriteDirectory` 带关联值，所以不能再用 `String` 原始值，
+/// 统一用 `id` 做 `Identifiable` 的标识。
+enum MusicUserRoute: Identifiable {
+    case profile                        // 个人信息（编辑资料）
+    case favoriteDirectory(FavoriteDirectory)  // 收藏夹详情（携带收藏夹）
+    case likedMusic                     // 我喜欢的歌曲（全部）
+    case favoriteAuthor                 // 我关注的歌手（全部）
+    case record                         // 播放记录（全部）
 
-    var id: String { rawValue }
+    var id: String {
+        switch self {
+        case .profile: return "profile"
+        case .favoriteDirectory(let directory): return "favoriteDirectory-\(directory.id)"
+        case .likedMusic: return "likedMusic"
+        case .favoriteAuthor: return "favoriteAuthor"
+        case .record: return "record"
+        }
+    }
 
     var title: String {
         switch self {
-        case .profile: return "用户信息"
+        case .profile: return "个人信息"
         case .favoriteDirectory: return "收藏夹详情"
         case .likedMusic: return "我喜欢的歌曲"
         case .favoriteAuthor: return "我关注的歌手"
@@ -110,7 +121,23 @@ struct MusicUserPage: View {
             }
         }
         .fullScreenCover(item: $route) { route in
-            PlaceholderDetailPage(title: route.title)
+            switch route {
+            case .profile:
+                // 用户信息编辑
+                EditUserInfoPage()
+            case .favoriteDirectory(let directory):
+                // 收藏夹详情
+                FavoriteMusicPage(directory: directory)
+            case .likedMusic:
+                // 我喜欢的歌曲（全部）
+                MusicFavoriteListPage()
+            case .favoriteAuthor:
+                // 我关注的歌手（全部）
+                FavoriteAuthorListPage()
+            case .record:
+                // 播放记录（全部）
+                RecordMusicPage()
+            }
         }
         .fullScreenCover(isPresented: $showPlayerPage) {
             MusicPlayerPage()
@@ -218,7 +245,7 @@ struct MusicUserPage: View {
                             fallbackText: directory.placeholderText,
                             title: directory.name,
                             subtitle: "\(directory.total ?? 0)首",
-                            onPlay: { route = .favoriteDirectory },
+                            onPlay: { route = .favoriteDirectory(directory) },
                             onMenu: {},
                             onLongPress: {
                                 deleteTarget = DeleteTarget(

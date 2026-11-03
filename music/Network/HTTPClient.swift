@@ -2065,6 +2065,34 @@ extension HTTPClient {
         }
     }
 
+    /// 某个收藏夹里的歌曲
+    /// 接口：GET /service/music/getMusicListByFavoriteId?favoriteId=&pageNum=&pageSize=
+    func getMusicListByFavoriteId(
+        favoriteId: Int,
+        pageNum: Int = 1,
+        pageSize: Int = Constants.MusicConfig.pageSize,
+        completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "favoriteId": favoriteId,
+            "pageNum": pageNum,
+            "pageSize": pageSize
+        ]
+
+        request(endpoint: .getMusicListByFavoriteId, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion(.success((response.data ?? [], response.total ?? 0)))
+                } else {
+                    completion(.failure(.custom(message: response.msg ?? "获取收藏夹歌曲失败")))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
     /// 我的收藏夹列表
     /// 接口：GET /service/music/getFavoriteDirectory?musicId=
     /// - Parameter musicId: 后端必填，用于标记「当前歌曲是否已在该收藏夹」；

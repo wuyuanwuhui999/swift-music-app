@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 歌曲列表卡片（白底圆角 + 行间分割线）
 ///
-/// 分类歌曲列表、歌手歌曲列表、搜索结果、歌曲分类页共用同一套列表样式，
+/// 分类歌曲列表、歌手歌曲列表、搜索结果、歌曲分类页、我喜欢的歌曲、收藏夹详情共用同一套列表样式，
 /// 统一在这里实现，避免每个页面重复写「行 + 分割线 + 卡片背景」。
 struct MusicSongListCard: View {
     /// 歌曲列表
@@ -22,6 +22,8 @@ struct MusicSongListCard: View {
     let onLike: (Int) -> Void
     /// 点更多菜单
     var onMenu: (Int) -> Void = { _ in }
+    /// 长按某一行（收藏夹详情用来「从收藏夹移除」）
+    var onLongPress: ((Int) -> Void)? = nil
 
     var body: some View {
         VStack(spacing: Dimens.middleMargin) {
@@ -34,6 +36,10 @@ struct MusicSongListCard: View {
                         onLike: { onLike(index) },
                         onMenu: { onMenu(index) }
                     )
+                    .contentShape(Rectangle())
+                    .onLongPressGesture {
+                        onLongPress?(index)
+                    }
 
                     // 最后一行不画分割线
                     if index < musics.count - 1 {
