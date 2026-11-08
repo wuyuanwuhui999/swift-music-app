@@ -70,7 +70,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── UserInfoPage.swift             # 用户信息
 │   │   ├── MusicIndexPage.swift           # 主页：四 Tab 容器 + 底部迷你播放器
 │   │   ├── MusicHomePage.swift            # 首页 Tab：搜索栏 + 分类入口 + 榜单/歌手模块
-│   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（分页 + 下拉刷新）
+│   │   ├── MusicRecommentPage.swift       # 推荐 Tab：带名次的推荐歌曲列表（categoryId 固定为 1）
 │   │   ├── MusicCirclePage.swift          # 音乐圈 Tab：动态流 + 点赞 / 评论 / 二级回复
 │   │   ├── MusicUserPage.swift            # 我的 Tab：用户信息 + 收藏夹 + 喜欢 + 关注歌手 + 播放记录
 │   │   ├── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
@@ -182,7 +182,7 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 | 能力 | 说明 |
 |------|------|
 | 列表 | 每行一张卡片：名次（前三名奖牌图标 `icon_no1~3`，其余数字）+ 封面 + 歌名/歌手 + 播放状态 + 喜欢 + 更多 |
-| 数据源 | 先 `getMusicCategory` 取第一个分类，再 `getMusicListByCategoryId` 拉歌曲（修正了 uniapp 写死 categoryId=1 导致空白的问题） |
+| 数据源 | `getMusicListByCategoryId`，`categoryId` 固定为 **1**（该分类后端有 400+ 首真实数据，只是不在首页分类列表里展示，所以不能按分类列表取） |
 | 分页 | 每页 20 条，滚动到底（距底 200pt）加载下一页，到底显示「已经到底了」 |
 | 下拉刷新 | 原生 `.refreshable`，回到第一页重新拉取 |
 | 播放 | 点歌立即播放；若当前播放列表不是「推荐歌曲」，拉整列表（500 条）作为播放列表后进播放页 |

@@ -156,7 +156,7 @@ showPlayerPage = true
 | 欢迎/登录/注册/找回 | `WelcomePage` `LoginPage` `RegisterPage` `ForgetPasswordPage` `ResetPasswordPage` | 复用 chat 项目的用户模块 |
 | 四 Tab 容器 | `MusicIndexPage` | 自定义 TabBar + 中央迷你播放器；Tab 懒加载、状态保留 |
 | 首页 | `MusicHomePage` | 搜索栏（含 AI 图标）、四个分类入口、榜单模块流（首屏 3 个，滚动加载到 33 个）、推荐歌手 |
-| 推荐 | `MusicRecommentPage` | 带名次（前三名奖牌）的歌曲列表 |
+| 推荐 | `MusicRecommentPage` | 带名次（前三名奖牌）的歌曲列表；`categoryId` 固定为 1（有数据但不在首页分类列表里） |
 | 音乐圈 | `MusicCirclePage` | 动态流 + 点赞 + 评论/二级回复 + 发布按钮 |
 | 我的 | `MusicUserPage` | 用户卡 + 收藏夹 + 我喜欢 + 关注歌手 + 播放记录（可折叠、下拉刷新） |
 

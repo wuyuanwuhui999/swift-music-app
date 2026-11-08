@@ -13,9 +13,8 @@ import SwiftUI
 /// 一个带名次的推荐歌曲列表（前三名奖牌图标），下拉刷新、滚动到底加载更多，
 /// 点击播放会切歌并把整个列表作为播放列表带进播放页。
 ///
-/// 分类来源：uniapp 里写死 `categoryId = 1`，但后端 music_category 的自增 id 从 68 开始，
-/// 该分类不存在，接口永远返回空列表（页面空白）。这里按 flutter 的修正版实现：
-/// 先 `getMusicCategory` 取第一个分类，再用它的 id 拉歌曲。
+/// 分类来源：固定 `categoryId = 1`（对齐 uniapp `MusicRecommentComponent`）。
+/// 这个分类后端有真实数据（400+ 首），只是不在首页的分类列表里展示，所以不能按分类列表去取。
 struct MusicRecommentPage: View {
     @ObservedObject private var playerState = PlayerState.shared
 
@@ -25,8 +24,8 @@ struct MusicRecommentPage: View {
     @State private var pageNum = 1
     /// 接口返回的总条数
     @State private var total = 0
-    /// 已解析出的分类 id
-    @State private var categoryId: Int?
+    /// 推荐分类 id（后端固定为 1，有数据但不在首页分类列表里展示）
+    private let categoryId = 1
     /// 是否正在请求
     @State private var isLoading = false
     /// 是否展示播放页
@@ -124,77 +123,26 @@ struct MusicRecommentPage: View {
 
     // MARK: - 数据
 
-    /// 首次加载：解析分类 → 拉第一页
+    /// 首次加载：拉第一页
     private func loadFirstPage() {
         guard !isLoading else { return }
         isLoading = true
-        resolveCategoryId { id in
-            guard let id = id else {
-                isLoading = false
-                return
-            }
-            categoryId = id
-            fetch(page: 1, replace: true)
-        }
+        fetch(page: 1, replace: true)
     }
 
     /// 下拉刷新
     @MainActor
     private func reload() async {
-        // 刷新时保留已解析的分类，只重新拉第一页
         await withCheckedContinuation { continuation in
-            resolveCategoryId { id in
-                guard let id = id else {
-                    continuation.resume()
-                    return
-                }
-                categoryId = id
-                HTTPClient.shared.getMusicListByCategoryId(
-                    categoryId: id,
-                    pageNum: 1,
-                    pageSize: pageSize
-                ) { result in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case .success(let (list, totalCount)):
-                            total = totalCount
-                            musics = list
-                            pageNum = 1
-                        case .failure(let error):
-                            alertMessage = error.localizedDescription
-                        }
-                        continuation.resume()
-                    }
-                }
-            }
-        }
-    }
-
-    /// 解析推荐分类 id（取第一个分类；已解析过则直接用）
-    private func resolveCategoryId(completion: @escaping (Int?) -> Void) {
-        if let categoryId = categoryId {
-            completion(categoryId)
-            return
-        }
-        HTTPClient.shared.getMusicCategory { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let list):
-                    completion(list.first?.id)
-                case .failure(let error):
-                    print("❌ 解析推荐分类失败: \(error.localizedDescription)")
-                    completion(nil)
-                }
+            isLoading = true
+            fetch(page: 1, replace: true) {
+                continuation.resume()
             }
         }
     }
 
     /// 拉取指定页
-    private func fetch(page: Int, replace: Bool) {
-        guard let categoryId = categoryId else {
-            isLoading = false
-            return
-        }
+    private func fetch(page: Int, replace: Bool, completion: (() -> Void)? = nil) {
         HTTPClient.shared.getMusicListByCategoryId(
             categoryId: categoryId,
             pageNum: page,
@@ -214,6 +162,7 @@ struct MusicRecommentPage: View {
                 case .failure(let error):
                     alertMessage = error.localizedDescription
                 }
+                completion?()
             }
         }
     }
@@ -236,7 +185,7 @@ struct MusicRecommentPage: View {
         if playerState.currentMusic?.id != music.id {
             playerState.setMusic(music, autoPlay: true)
 
-            if playerState.classifyName != classifyName, let categoryId = categoryId {
+            if playerState.classifyName != classifyName {
                 HTTPClient.shared.getMusicListByCategoryId(
                     categoryId: categoryId,
                     pageNum: 1,
