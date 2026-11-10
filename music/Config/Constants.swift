@@ -50,6 +50,10 @@ struct Constants {
         static let searchClassifyName = "搜索"
         /// 搜索历史最多保留条数（对齐 flutter 20 条）
         static let searchHistoryMax = 20
+        /// 首页「经典老歌」入口跳转的分类（后端固定 id 2，有 100+ 首老歌）
+        static let classicsCategoryId = 2
+        /// 首页「经典老歌」入口的分类名（同时作为跳转页面的导航栏标题）
+        static let classicsCategoryName = "经典老歌"
     }
 
     /// 音乐圈 / 社交模块通用配置（对齐 uniapp `common/enum.ts` 的 CircleEnum / CommentEnum）
