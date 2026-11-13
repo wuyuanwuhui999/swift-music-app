@@ -54,7 +54,7 @@ enum MusicDetailRoute: Identifiable {
 ///
 /// 对齐 uniapp `MusicHomeComponent` 与 flutter `MusicHomePage`：
 /// 1. 顶部搜索栏（用户头像 + 推荐关键词 + AI 入口）
-/// 2. 四个分类入口（歌手 / 分类歌曲 / 经典老歌 / 热门榜单）
+/// 2. 四个分类入口（歌手 / 分类歌曲 / 经典老歌 / 热门歌曲）
 /// 3. 「推荐歌手」模块（默认 4 个歌手）
 /// 4. 若干榜单模块（每个模块展示 3 首歌），初始加载 3 个模块，滚动到底再加 1 个
 ///
@@ -160,7 +160,7 @@ struct MusicHomePage: View {
         )
     }
 
-    /// 点首页「热门榜单」入口：进分类歌曲列表页，参数为 { id: 2, category: "热门榜单" }
+    /// 点首页「热门歌曲」入口：进分类歌曲列表页，参数为 { id: 1, category: "热门歌曲" }
     private func openRank() {
         route = .classifyList(
             MusicCategory(

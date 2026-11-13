@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-/// 首页分类入口（歌手 / 分类歌曲 / 经典老歌 / 热门榜单）
+/// 首页分类入口（歌手 / 分类歌曲 / 经典老歌 / 热门歌曲）
 ///
 /// 对齐 uniapp `MusicHomeComponent` 的 `.category-wrapper`：
 /// 4 个等分入口，图标 + 文案纵向排列，四个都可点击跳转：
-/// 歌手 → 歌手分类页，分类歌曲 → 歌曲分类页，经典老歌 / 热门榜单 → 分类歌曲列表页。
+/// 歌手 → 歌手分类页，分类歌曲 → 歌曲分类页，经典老歌 / 热门歌曲 → 分类歌曲列表页。
 struct MusicCategoryEntryRow: View {
     /// 点「歌手」
     let onSingerTap: () -> Void
@@ -19,7 +19,7 @@ struct MusicCategoryEntryRow: View {
     let onCategoryTap: () -> Void
     /// 点「经典老歌」
     let onClassicsTap: () -> Void
-    /// 点「热门榜单」
+    /// 点「热门歌曲」
     let onRankTap: () -> Void
 
     /// 入口配置：图标资源名 + 文案
@@ -27,7 +27,7 @@ struct MusicCategoryEntryRow: View {
         ("icon_music_singer", "歌手"),
         ("icon_music_classify", "分类歌曲"),
         ("icon_music_classics", "经典老歌"),
-        ("icon_music_rank", "热门榜单")
+        ("icon_music_rank", "热门歌曲")
     ]
 
     var body: some View {
@@ -66,7 +66,7 @@ struct MusicCategoryEntryRow: View {
             // 经典老歌：跳分类歌曲列表页（id 2）
             Button(action: onClassicsTap) { content }.buttonStyle(.plain)
         default:
-            // 热门榜单：跳分类歌曲列表页（id 2）
+            // 热门歌曲：跳分类歌曲列表页（id 1）
             Button(action: onRankTap) { content }.buttonStyle(.plain)
         }
     }
