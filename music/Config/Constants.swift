@@ -54,8 +54,8 @@ struct Constants {
         static let classicsCategoryId = 2
         /// 首页「经典老歌」入口的分类名（同时作为跳转页面的导航栏标题）
         static let classicsCategoryName = "经典老歌"
-        /// 首页「热门榜单」入口跳转的分类 id（与经典老歌同一个分类，仅标题不同）
-        static let rankCategoryId = 2
+        /// 首页「热门榜单」入口跳转的分类 id
+        static let rankCategoryId = 1
         /// 首页「热门榜单」入口的分类名（作为跳转页面的导航栏标题）
         static let rankCategoryName = "热门榜单"
     }
