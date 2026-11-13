@@ -92,7 +92,8 @@ struct MusicHomePage: View {
                 MusicCategoryEntryRow(
                     onSingerTap: { route = .authorCategory },
                     onCategoryTap: { route = .categoryList },
-                    onClassicsTap: { openClassics() }
+                    onClassicsTap: { openClassics() },
+                    onRankTap: { openRank() }
                 )
 
                 // 榜单 / 推荐歌手模块
@@ -155,6 +156,17 @@ struct MusicHomePage: View {
                 id: Constants.MusicConfig.classicsCategoryId,
                 category: Constants.MusicConfig.classicsCategoryName,
                 classify: Constants.MusicConfig.classicsCategoryName
+            )
+        )
+    }
+
+    /// 点首页「热门榜单」入口：进分类歌曲列表页，参数为 { id: 2, category: "热门榜单" }
+    private func openRank() {
+        route = .classifyList(
+            MusicCategory(
+                id: Constants.MusicConfig.rankCategoryId,
+                category: Constants.MusicConfig.rankCategoryName,
+                classify: Constants.MusicConfig.rankCategoryName
             )
         )
     }

@@ -419,7 +419,7 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 | 能力 | 说明 | 对应的 uniapp / flutter |
 |------|------|--------------------------|
 | 搜索栏 | 用户头像 + 推荐关键词（`getKeywordMusic`）+ AI 入口 | `MusicSearchComponent` / `buildSearchWidget` |
-| 分类入口 | 歌手 / 分类歌曲 / 经典老歌 / 热门榜单（前三个可点：歌手→歌手分类页、分类歌曲→歌曲分类页、经典老歌→分类歌曲列表页 `{id:2, category:"经典老歌"}`） | `.category-wrapper` / `buildClassifyWidget` |
+| 分类入口 | 歌手 / 分类歌曲 / 经典老歌 / 热门榜单（四个都可点：歌手→歌手分类页、分类歌曲→歌曲分类页、经典老歌→分类歌曲列表页 `{id:2, category:"经典老歌"}`、热门榜单→分类歌曲列表页 `{id:2, category:"热门榜单"}`） | `.category-wrapper` / `buildClassifyWidget` |
 | 榜单模块 | 每个分类一张卡片，展示前 3 首歌，可折叠、可看更多 | `MusicClassifyComponent` / `buildMusicModuleByClassifyIdWidget` |
 | 推荐歌手模块 | `category/classify == 推荐歌手` 时展示 4 个歌手 | `MusicSingerComponent` / `buildMusicAuthorListWidget` |
 | 分页 | 初始 3 个模块，滚动到底 +1，到底显示「已经到底了」 | `pageNum` / `EasyRefresh.onLoad` |
