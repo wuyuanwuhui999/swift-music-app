@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 歌手分类页
 ///
-/// 入口：首页四个分类入口里的「歌手」、首页「推荐歌手」模块的「更多」。
+/// 入口：首页分类入口里的「歌手」、首页「推荐歌手」模块的「更多」。
 ///
 /// 对齐 flutter `MusicAuthorCategoryPage.dart` 与 uniapp `MusicAuthorCategoryPage.vue`：
 /// - 导航栏标题「歌手分类」

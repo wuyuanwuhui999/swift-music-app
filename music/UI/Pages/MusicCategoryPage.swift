@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 歌曲分类页
 ///
-/// 入口：首页四个分类入口里的「分类歌曲」。
+/// 入口：首页分类入口里的「分类歌曲」。
 ///
 /// 对齐 flutter `MusicCategoryPage.dart` 与 uniapp `MusicCategoryListPage.vue`：
 /// - 导航栏标题「歌曲分类」

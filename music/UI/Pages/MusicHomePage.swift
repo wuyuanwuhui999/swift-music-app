@@ -54,7 +54,7 @@ enum MusicDetailRoute: Identifiable {
 ///
 /// 对齐 uniapp `MusicHomeComponent` 与 flutter `MusicHomePage`：
 /// 1. 顶部搜索栏（用户头像 + 推荐关键词 + AI 入口）
-/// 2. 四个分类入口（歌手 / 分类歌曲 / 经典老歌 / 热门歌曲）
+/// 2. 八个分类入口（两行 4 列：歌手 / 分类歌曲 / 经典老歌 / 热门歌曲 + 蝰蛇母带 / 专属好歌 / 音乐记忆 / 流行热歌）
 /// 3. 「推荐歌手」模块（默认 4 个歌手）
 /// 4. 若干榜单模块（每个模块展示 3 首歌），初始加载 3 个模块，滚动到底再加 1 个
 ///
@@ -88,13 +88,8 @@ struct MusicHomePage: View {
                     onAITap: { route = .chat }
                 )
 
-                // 四个分类入口
-                MusicCategoryEntryRow(
-                    onSingerTap: { route = .authorCategory },
-                    onCategoryTap: { route = .categoryList },
-                    onClassicsTap: { openClassics() },
-                    onRankTap: { openRank() }
-                )
+                // 分类入口（2 行 4 列共 8 个）
+                MusicCategoryEntryRow(onTap: openCategoryEntry)
 
                 // 榜单 / 推荐歌手模块
                 ForEach(visibleCategories) { category in
@@ -149,26 +144,21 @@ struct MusicHomePage: View {
 
     // MARK: - 视图组件
 
-    /// 点首页「经典老歌」入口：进分类歌曲列表页，参数为 { id: 2, category: "经典老歌" }
-    private func openClassics() {
-        route = .classifyList(
-            MusicCategory(
-                id: Constants.MusicConfig.classicsCategoryId,
-                category: Constants.MusicConfig.classicsCategoryName,
-                classify: Constants.MusicConfig.classicsCategoryName
+    /// 点首页分类入口：按入口配置决定去向
+    /// - 歌手 → 歌手分类页
+    /// - 分类歌曲 → 歌曲分类页（分类网格）
+    /// - 其余 6 个歌曲分类 → 分类歌曲列表页，带上各自的 id 与名称（名称即导航栏标题）
+    private func openCategoryEntry(_ entry: MusicCategoryEntry) {
+        switch entry.destination {
+        case .singer:
+            route = .authorCategory
+        case .categoryGrid:
+            route = .categoryList
+        case .songs(let id, let title):
+            route = .classifyList(
+                MusicCategory(id: id, category: title, classify: title)
             )
-        )
-    }
-
-    /// 点首页「热门歌曲」入口：进分类歌曲列表页，参数为 { id: 1, category: "热门歌曲" }
-    private func openRank() {
-        route = .classifyList(
-            MusicCategory(
-                id: Constants.MusicConfig.rankCategoryId,
-                category: Constants.MusicConfig.rankCategoryName,
-                classify: Constants.MusicConfig.rankCategoryName
-            )
-        )
+        }
     }
 
     /// 当前已展示的模块
