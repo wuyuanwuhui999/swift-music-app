@@ -33,7 +33,7 @@ struct MusicCategoryEntry: Identifiable, Hashable {
 ///
 /// 对齐 uniapp `MusicHomeComponent` 的 `.category-wrapper`，在其 4 个入口基础上增加 4 个歌曲分类，
 /// 排成 2 行 × 4 列：
-/// - 第一行：歌手、分类歌曲、经典老歌、热门歌曲
+/// - 第一行：歌手、分类歌曲、经典老歌、独家精选
 /// - 第二行：蝰蛇母带、专属好歌、音乐记忆、流行热歌
 ///
 /// 除「歌手」「分类歌曲」进各自的分类页外，其余 6 个都进 `MusicClassifyListPage`，
@@ -47,7 +47,7 @@ struct MusicCategoryEntryRow: View {
         .init(title: "歌手", icon: "icon_music_singer", destination: .singer),
         .init(title: "分类歌曲", icon: "icon_music_classify", destination: .categoryGrid),
         .init(title: "经典老歌", icon: "icon_music_classics", destination: .songs(id: 2, title: "经典老歌")),
-        .init(title: "热门歌曲", icon: "icon_music_rank", destination: .songs(id: 1, title: "热门歌曲")),
+        .init(title: "独家精选", icon: "icon_music_rank", destination: .songs(id: 1, title: "独家精选")),
         .init(title: "蝰蛇母带", icon: "icon_music_kuishe", destination: .songs(id: 3, title: "蝰蛇母带")),
         .init(title: "专属好歌", icon: "icon_music_exclusive", destination: .songs(id: 4, title: "专属好歌")),
         .init(title: "音乐记忆", icon: "icon_music_memory", destination: .songs(id: 5, title: "音乐记忆")),
