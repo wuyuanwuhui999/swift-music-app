@@ -174,10 +174,11 @@ struct MusicPlayerPage: View {
             HStack {
                 Button(action: { dismiss() }) {
                     Image("icon_back")
+                        .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: Dimens.smallIcon, height: Dimens.smallIcon)
-                        .opacity(0.5)
+                        .foregroundColor(Colors.whiteColor)
                         .padding(Dimens.middleMargin)
                 }
                 .buttonStyle(.plain)
