@@ -236,6 +236,9 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 - 收藏夹接口 `getFavoriteDirectory?musicId=` 的 `musicId` 是**必填**（后端用于标记当前歌曲是否已收藏），
   我的页面没有歌曲上下文时按「当前播放歌曲 → 第一首喜欢的歌曲」取值；都没有则不请求、展示空列表。
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
+- 播放记录需要客户端主动上报：播放时调用 `POST /service/music/insertMusicRecord`
+  （body：`musicId` / `platform` / `version` / `device`，platform=ios、device=iPhone），
+  已统一放在 `PlayerState.setMusic(autoPlay: true)` 与切歌 `switchTo(index:)` 里，上报失败只打日志、不影响播放。
 
 ### 剩余二级页面实现要点
 

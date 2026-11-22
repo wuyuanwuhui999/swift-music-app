@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 // 在 Constants 结构体中添加新的 API 路径
 struct Constants {
     // API基础域名
@@ -62,6 +65,24 @@ struct Constants {
         static let showThink = true
         /// 语音 / 文字输入框高度
         static let inputHeight = Dimens.inputHeight
+    }
+
+    /// 播放记录上报用的客户端信息（对齐 uniapp 的 platform / version / device）
+    struct ClientInfo {
+        /// 平台
+        static let platform = "ios"
+        /// 版本号（取 App 的 CFBundleShortVersionString）
+        static var version: String {
+            Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        }
+        /// 设备型号（iPhone / iPad）
+        static var device: String {
+            #if canImport(UIKit)
+            return UIDevice.current.model
+            #else
+            return "iPhone"
+            #endif
+        }
     }
 
     struct CircleConfig {
@@ -146,6 +167,7 @@ struct Constants {
         // MARK: - 我的（MusicUserPage）相关
         static let getMusicLike = "/service/music/getMusicLike"
         static let getMusicRecord = "/service/music/getMusicRecord"
+        static let insertMusicRecord = "/service/music/insertMusicRecord"
         static let getFavoriteAuthor = "/service/music/getFavoriteAuthor"
         static let deleteFavoriteAuthor = "/service/music/deleteFavoriteAuthor/{authorId}"
         static let getFavoriteDirectory = "/service/music/getFavoriteDirectory"

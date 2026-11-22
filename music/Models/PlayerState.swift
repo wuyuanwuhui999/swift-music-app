@@ -92,6 +92,11 @@ final class PlayerState: ObservableObject {
             return
         }
         engine.load(url: url, autoPlay: autoPlay)
+
+        // 真正播放时才上报播放记录（对齐 uniapp：isPlaying && insertMusicRecord）
+        if autoPlay {
+            recordPlay(music)
+        }
     }
 
     /// 设置播放列表
@@ -219,6 +224,17 @@ final class PlayerState: ObservableObject {
         saveMusicToCache(music)
         if let url = audioURL(for: music) {
             engine.load(url: url, autoPlay: true)
+            recordPlay(music)
+        }
+    }
+
+    /// 上报播放记录（`POST /service/music/insertMusicRecord`）
+    /// 失败只打日志，不影响播放
+    private func recordPlay(_ music: Music) {
+        HTTPClient.shared.insertMusicRecord(musicId: music.id) { result in
+            if case .failure(let error) = result {
+                print("⚠️ 上报播放记录失败: \(error.localizedDescription)")
+            }
         }
     }
 

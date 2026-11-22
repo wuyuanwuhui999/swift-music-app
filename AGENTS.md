@@ -233,6 +233,7 @@ showPlayerPage = true
 | 9 | AI 聊天：`type=online` 的模型后端返回「不支持的模型类型 online」 | 模型列表把 `type != "online"`（ollama）排前面，online 兜底 |
 | 10 | 字段类型不稳定：`total` 可能是字符串、`authorId` 可能是字符串 | 所有模型走 `DecodingHelpers` 宽容解码 |
 | 11 | 封面地址有三种形态：完整 URL、相对路径、带 `{size}` 的 CDN 地址 | 一律走 `MusicUtils.coverURL()`；外链 `http` 自动升 `https`，本地 `127.0.0.1` 保持不变（ATS） |
+| 12 | 播放记录需要客户端主动上报：`POST /service/music/insertMusicRecord`（body：musicId、platform、version、device，其中 platform=ios、device=iPhone），不调接口「我的 → 最近播放」就一直没数据 | 已统一在 `PlayerState.setMusic(autoPlay: true)` 和切歌 `switchTo(index:)` 里上报（`Constants.ClientInfo` 给 platform/version/device），失败只打日志、不影响播放 |
 
 ---
 

@@ -1868,6 +1868,42 @@ extension HTTPClient {
         }
     }
 
+    /// 上报播放记录（开始播放某首歌时调用）
+    /// 接口：POST /service/music/insertMusicRecord
+    /// - Parameters:
+    ///   - musicId: 歌曲 id
+    ///   - platform: 平台（ios）
+    ///   - version: App 版本号
+    ///   - device: 设备型号（iPhone / iPad）
+    /// - Note: 与 uniapp `useStore.setMusic / setClassifyMusic` 一致，只在真正播放时上报，失败不影响播放。
+    func insertMusicRecord(
+        musicId: Int,
+        platform: String = Constants.ClientInfo.platform,
+        version: String = Constants.ClientInfo.version,
+        device: String = Constants.ClientInfo.device,
+        completion: ((Result<Int, NetworkError>) -> Void)? = nil
+    ) {
+        let parameters: [String: Any] = [
+            "musicId": musicId,
+            "platform": platform,
+            "version": version,
+            "device": device
+        ]
+
+        request(endpoint: .insertMusicRecord, parameters: parameters) { (result: Result<BaseResponse<Int>, NetworkError>) in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    completion?(.success(response.data ?? 0))
+                } else {
+                    completion?(.failure(.custom(message: response.msg ?? "上报播放记录失败")))
+                }
+            case .failure(let error):
+                completion?(.failure(error))
+            }
+        }
+    }
+
     /// 我最近播放的歌曲
     /// 接口：GET /service/music/getMusicRecord?pageNum=&pageSize=
     func getMusicRecord(
