@@ -238,7 +238,7 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 - 播放记录后端暂无删除接口，点删除只做本地移除并提示。
 - 播放记录需要客户端主动上报：播放时调用 `POST /service/music/insertMusicRecord`
   （body：`musicId` / `platform` / `version` / `device`，platform=ios、device=iPhone），
-  已统一放在 `PlayerState.setMusic(autoPlay: true)` 与切歌 `switchTo(index:)` 里，上报失败只打日志、不影响播放。
+  已统一放在 `PlayerState.setMusic(autoPlay: true)`、切歌 `switchTo(index:)`、单曲循环重播 `handleTrackFinished()` 三处，上报失败只打日志、不影响播放。
 
 ### 剩余二级页面实现要点
 

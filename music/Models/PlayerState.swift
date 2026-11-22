@@ -250,8 +250,12 @@ final class PlayerState: ObservableObject {
     private func handleTrackFinished() {
         switch loopMode {
         case .repeatOne:
+            // 单曲循环：重播当前这首，每次都算一次播放，需要重新上报播放记录
             engine.seek(to: 0)
             engine.play()
+            if let music = currentMusic {
+                recordPlay(music)
+            }
         case .order, .random:
             playNext()
         }
