@@ -12,17 +12,38 @@ import SwiftUI
 /// 首页点搜索框进入，搜索框里的推荐关键词作为输入框提示语。
 ///
 /// 对齐 flutter `MusicSearchPage.dart` 与 uniapp `MusicSearchPage.vue`：
+/// - 自定义导航栏：中间显示搜索模式（普通搜索 / 智能搜索），带下拉三角；
+///   智能搜索时再显示「｜ + 模型名称 + 下拉三角」，点模型名可切换模型
 /// - 顶部搜索栏：圆角输入框 + 清除图标 + 「搜索」按钮
 /// - 未搜索时展示「历史搜索」（最多 20 条，本地持久化，逗号分隔），没有则显示「暂无搜索记录」
 /// - 搜索后展示歌曲列表（复用 `MusicSongListCard`，内部是 `MusicSongRow`），滚动到底加载下一页，到底显示「已经到底了」
 /// - 点歌：把搜索结果作为播放列表、模块名设为「搜索」后进播放页
 ///
-/// 接口：`GET /service/music/searchMusic?keyword=&pageNum=&pageSize=`
+/// 接口：
+/// - `GET /service/music/searchMusic?keyword=&pageNum=&pageSize=&searchMode=&modelId=&searchId=`
+///   smart 模式必传 `modelId`（`getModelList` 返回的模型 id）与 `searchId`（32 位 UUID，分页沿用同一个）
+/// - `GET /service/chat/getModelList` 智能搜索用的模型列表
 struct MusicSearchPage: View {
     /// 首页搜索框里的推荐关键词（输入框为空时用它兜底）
     let keyword: String
 
     @ObservedObject private var playerState = PlayerState.shared
+    @Environment(\.dismiss) private var dismiss
+
+    /// 搜索模式（普通 / 智能）
+    @State private var searchMode: SearchMode = .normal
+    /// 可用模型列表（智能搜索用）
+    @State private var models: [ChatModel] = []
+    /// 当前选中的模型下标
+    @State private var selectedModelIndex = 0
+    /// 是否展示搜索模式选择
+    @State private var showModeMenu = false
+    /// 是否展示模型选择
+    @State private var showModelMenu = false
+    /// 智能搜索会话 id（32 位 UUID，同一关键词分页时保持不变）
+    @State private var searchId = ""
+    /// 上次搜索时的「模式 + 模型 + 关键词」指纹，用于判断是否需要重新生成 searchId
+    @State private var lastSearchSignature = ""
 
     /// 输入框内容
     @State private var input = ""
@@ -49,7 +70,7 @@ struct MusicSearchPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            MusicNavBar(title: "搜索")
+            navBar
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: Dimens.middleMargin) {
@@ -82,7 +103,22 @@ struct MusicSearchPage: View {
             }
         }
         .background(Colors.pageBackgroundColor)
-        .onAppear(perform: loadHistory)
+        .onAppear {
+            loadHistory()
+            loadModels()
+        }
+        .confirmationDialog("搜索模式", isPresented: $showModeMenu, titleVisibility: .visible) {
+            ForEach(SearchMode.allCases) { mode in
+                Button(mode.title) { selectMode(mode) }
+            }
+            Button("取消", role: .cancel) {}
+        }
+        .confirmationDialog("选择模型", isPresented: $showModelMenu, titleVisibility: .visible) {
+            ForEach(Array(models.enumerated()), id: \.element.id) { index, model in
+                Button(model.modelName) { selectModel(at: index) }
+            }
+            Button("取消", role: .cancel) {}
+        }
         .fullScreenCover(isPresented: $showPlayerPage) {
             MusicPlayerPage()
         }
@@ -94,6 +130,74 @@ struct MusicSearchPage: View {
         } message: {
             Text(alertMessage ?? "")
         }
+    }
+
+    // MARK: - 导航栏
+
+    /// 自定义导航栏：返回 + 中间「搜索模式（｜模型名）」
+    private var navBar: some View {
+        ZStack {
+            // 中间：搜索模式（可点切换）
+            HStack(spacing: Dimens.smallMargin) {
+                Button(action: { showModeMenu = true }) {
+                    HStack(spacing: Dimens.smallMargin) {
+                        Text(searchMode.title)
+                            .font(.system(size: Dimens.middleFont))
+                            .foregroundColor(Colors.blackColor)
+
+                        downTriangle
+                    }
+                }
+                .buttonStyle(.plain)
+
+                // 智能搜索才显示「｜ 模型名称」
+                if searchMode == .smart {
+                    Text("｜")
+                        .font(.system(size: Dimens.middleFont))
+                        .foregroundColor(Colors.grayColor)
+
+                    Button(action: { showModelMenu = true }) {
+                        HStack(spacing: Dimens.smallMargin) {
+                            Text(modelName)
+                                .font(.system(size: Dimens.normalFont))
+                                .foregroundColor(Colors.subColor)
+                                .lineLimit(1)
+
+                            downTriangle
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, Dimens.navBarHeight)
+
+            // 左侧返回
+            HStack {
+                Button(action: { dismiss() }) {
+                    Image("icon_back")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: Dimens.smallIcon, height: Dimens.smallIcon)
+                        .foregroundColor(Colors.blackColor)
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+            }
+            .padding(.horizontal, Dimens.middleMargin)
+        }
+        .frame(height: Dimens.navBarHeight)
+        .frame(maxWidth: .infinity)
+        .background(Colors.whiteColor)
+    }
+
+    /// 下拉三角（可点击的提示图标）
+    private var downTriangle: some View {
+        Image("icon_down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: Dimens.smallIcon * 0.7, height: Dimens.smallIcon * 0.7)
+            .opacity(0.6)
     }
 
     // MARK: - 搜索栏
@@ -226,6 +330,64 @@ struct MusicSearchPage: View {
         musics.count < total
     }
 
+    /// 当前选中模型的名称（未加载到模型时显示占位）
+    private var modelName: String {
+        guard models.indices.contains(selectedModelIndex) else { return "模型加载中" }
+        return models[selectedModelIndex].modelName
+    }
+
+    /// 当前选中模型的 id（智能搜索要传给后端）
+    private var modelId: String? {
+        guard models.indices.contains(selectedModelIndex) else { return nil }
+        return models[selectedModelIndex].id
+    }
+
+    /// 当前搜索指纹：模式 + 模型 + 关键词，任一项变化都要换新的 searchId
+    private func signature(keyword: String) -> String {
+        "\(searchMode.rawValue)|\(modelId ?? "")|\(keyword)"
+    }
+
+    /// 生成 32 位 UUID（去掉连字符）
+    private func makeSearchId() -> String {
+        UUID().uuidString.replacingOccurrences(of: "-", with: "")
+    }
+
+    /// 切换搜索模式
+    private func selectMode(_ mode: SearchMode) {
+        guard mode != searchMode else { return }
+        searchMode = mode
+        // 切到智能搜索时确保模型列表已加载
+        if mode == .smart, models.isEmpty {
+            loadModels()
+        }
+    }
+
+    /// 选择模型
+    private func selectModel(at index: Int) {
+        guard models.indices.contains(index) else { return }
+        selectedModelIndex = index
+    }
+
+    /// 拉取智能搜索可用的模型列表（取 `getModelList` 的第一条作为默认）
+    private func loadModels() {
+        guard models.isEmpty else { return }
+        HTTPClient.shared.getModelList(companyId: Constants.ChatConfig.companyId) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let (list, _)):
+                    // 与 AI 助手一致：ollama 类型优先（后端 chat 不支持 online 类型）
+                    let usable = list.filter { ($0.disabled ?? 0) == 0 }
+                    let local = usable.filter { $0.type != "online" }
+                    let online = usable.filter { $0.type == "online" }
+                    models = local + online
+                    selectedModelIndex = 0
+                case .failure(let error):
+                    print("⚠️ 获取模型列表失败: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
     // MARK: - 搜索
 
     /// 点搜索按钮 / 键盘回车
@@ -245,6 +407,14 @@ struct MusicSearchPage: View {
         isLoading = true
         musics = []
         pageNum = 1
+
+        // 关键词 / 搜索模式 / 模型变了才换新的会话 id；同一关键词翻页沿用同一个 searchId
+        let currentSignature = signature(keyword: kw)
+        if currentSignature != lastSearchSignature || searchId.isEmpty {
+            searchId = makeSearchId()
+            lastSearchSignature = currentSignature
+        }
+
         fetch(page: 1, replace: true)
     }
 
@@ -262,6 +432,9 @@ struct MusicSearchPage: View {
         musics = []
         total = 0
         pageNum = 1
+        // 清空后重新搜索视为新会话
+        lastSearchSignature = ""
+        searchId = ""
     }
 
     /// 加载下一页
@@ -274,7 +447,14 @@ struct MusicSearchPage: View {
     /// 请求搜索结果
     private func fetch(page: Int, replace: Bool) {
         let kw = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        HTTPClient.shared.searchMusic(keyword: kw, pageNum: page, pageSize: pageSize) { result in
+        HTTPClient.shared.searchMusic(
+            keyword: kw,
+            pageNum: page,
+            pageSize: pageSize,
+            searchMode: searchMode.rawValue,
+            modelId: modelId,
+            searchId: searchId.isEmpty ? nil : searchId
+        ) { result in
             DispatchQueue.main.async {
                 isLoading = false
                 switch result {

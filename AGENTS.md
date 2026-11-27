@@ -174,7 +174,7 @@ showPlayerPage = true
 
 | 页面 | 文件 | 入口 |
 |------|------|------|
-| 搜索 | `MusicSearchPage` | 首页搜索栏 |
+| 搜索 | `MusicSearchPage` | 首页搜索栏；自定义导航栏可切普通/智能搜索与模型（`searchMode`/`modelId`/`searchId`） |
 | 歌曲分类 | `MusicCategoryPage` | 首页「分类歌曲」入口 |
 | 筛选/榜单歌曲列表 | `MusicClassifyListPage` | 首页模块标题栏「更多」 |
 | 歌手分类 | `MusicAuthorCategoryPage` | 首页「歌手」入口、「推荐歌手 > 更多」 |

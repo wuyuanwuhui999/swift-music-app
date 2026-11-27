@@ -71,6 +71,8 @@ struct Dimens {
     static let circlePublishButton: CGFloat = 40
     /// 发布动态页文字输入区高度
     static let shareTextAreaHeight: CGFloat = 160
+    /// 二级页面导航栏高度（与 MusicNavBar 的图标 + 上下内边距视觉一致）
+    static let navBarHeight: CGFloat = 56
 }
 
 // 扩展CGFloat以便更方便使用

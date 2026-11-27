@@ -75,7 +75,7 @@ swift-music-app/music/                     # Git 仓库根
 │   │   ├── MusicUserPage.swift            # 我的 Tab：用户信息 + 收藏夹 + 喜欢 + 关注歌手 + 播放记录
 │   │   ├── MusicPlayerPage.swift          # 播放页：模糊背景 + 唱片 + 歌词 + 进度 + 控制栏
 │   │   ├── MusicClassifyListPage.swift    # 分类歌曲列表页（首页模块「更多」进入）
-│   │   ├── MusicSearchPage.swift          # 搜索页：搜索栏 + 历史搜索 + 结果列表
+│   │   ├── MusicSearchPage.swift          # 搜索页：自定义导航栏（普通/智能搜索 + 模型选择）+ 历史搜索 + 结果列表
 │   │   ├── MusicAuthorListPage.swift      # 歌手歌曲列表页（某位歌手的全部歌曲）
 │   │   ├── MusicSharePage.swift           # 发布音乐圈动态页（文字 + 分享歌曲 + 可见范围）
 │   │   ├── MusicLyricPage.swift           # 歌词全屏页（模糊封面 + 大字同步歌词）
@@ -390,6 +390,8 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 
 | 能力 | 说明 |
 |------|------|
+| 导航栏 | 自定义 NavBar（非 `MusicNavBar`）：中间显示「普通搜索 ▾」，点开可选普通搜索 / 智能搜索 |
+| 智能搜索 | 切到智能搜索后标题变为「智能搜索 ｜ 模型名称 ▾」；模型名来自 `getModelList` 的第一条，点模型名可切换 |
 | 搜索栏 | 圆角输入框 + 清除图标（有内容才显示）+ 主题色「搜索」按钮，键盘回车也能搜 |
 | 历史搜索 | 最多 20 条，逗号分隔存 `UserDefaults`（`StorageKey.musicSearchHistory`），已存在则提到最前；空时显示「暂无搜索记录」 |
 | 结果列表 | 复用 `MusicSongRow`（封面 + 「歌手 - 歌名」+ 播放状态 + 喜欢 + 菜单），行间分割线 |
@@ -398,6 +400,10 @@ MusicIndexPage（四 Tab 容器，对齐 uniapp MusicIndexPage.vue / flutter Mus
 | 点歌 | 搜索结果作为播放列表、`classifyName` 设为「搜索」后进播放页 |
 | 喜欢 | `insertMusicLike` / `deleteMusicLike`，成功后同步行内状态并提示 |
 
+- 搜索接口参数：`searchMode`（`normal` 默认 / `smart`）、`modelId`（smart 必填，模型 id）、
+  `searchId`（smart 必填，前端 32 位 UUID）。
+- `searchId` 生成规则：关键词 / 搜索模式 / 模型任一变化后再点搜索会重新生成；
+  同一个关键词滚动翻页时沿用同一个 `searchId`（后端按 searchId 复用已生成的查询条件）。
 - 历史标签用 `FlowLayout`（自定义 `Layout`）实现 flutter `Wrap` 的换行效果。
 - `MusicDetailRoute.search` 同样是带关联值的 case（`search(String)`），由 route 把关键词传给搜索页。
 

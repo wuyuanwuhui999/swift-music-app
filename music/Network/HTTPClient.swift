@@ -1786,21 +1786,36 @@ extension HTTPClient {
 extension HTTPClient {
 
     /// 搜索歌曲
-    /// 接口：GET /service/music/searchMusic?keyword=&pageNum=&pageSize=
+    /// 接口：GET /service/music/searchMusic
     /// - Parameters:
-    ///   - keyword: 搜索关键词（内部会做 URL 编码）
-    ///   - completion: 成功返回（歌曲数组, 总条数）
+    ///   - keyword: 关键词
+    ///   - searchMode: `normal` 普通模糊搜索（默认）/ `smart` 大模型智能搜索
+    ///   - modelId: 智能模式必填，chat_model 表里的模型 id
+    ///   - searchId: 智能模式必填，搜索会话 id（前端生成 32 位 UUID，分页时各页透传同一个）
     func searchMusic(
         keyword: String,
         pageNum: Int = 1,
         pageSize: Int = Constants.MusicConfig.pageSize,
+        searchMode: String = SearchMode.normal.rawValue,
+        modelId: String? = nil,
+        searchId: String? = nil,
         completion: @escaping (Result<([Music], Int), NetworkError>) -> Void
     ) {
-        let parameters: [String: Any] = [
+        var parameters: [String: Any] = [
             "keyword": keyword,
             "pageNum": pageNum,
-            "pageSize": pageSize
+            "pageSize": pageSize,
+            "searchMode": searchMode
         ]
+        // 智能搜索才需要模型与会话 id
+        if searchMode == SearchMode.smart.rawValue {
+            if let modelId = modelId, !modelId.isEmpty {
+                parameters["modelId"] = modelId
+            }
+            if let searchId = searchId, !searchId.isEmpty {
+                parameters["searchId"] = searchId
+            }
+        }
 
         request(endpoint: .searchMusic, parameters: parameters) { (result: Result<BaseResponse<[Music]>, NetworkError>) in
             switch result {
